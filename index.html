@@ -277,25 +277,62 @@
       }
     }
 
-    function updateUI(d) {
-      const weight     = parseFloat(d.weight) || 0;
-      const motionDetected = d.motionDetected === true;
-      const devStatus  = d.deviceStatus || 'OFFLINE';
-      const pirAnalysis = d.pirAnalysis || '';
+    let lastMotionTimeWeb = 0;
 
-      // 강아지 안착 판단: 무게 >= 200g AND PIR 미감지
-      const dogSettled = isDogSettled(weight, motionDetected);
+    function updateUI(d) {
+      const weight          = parseFloat(d.weight) || 0;
+      const motionDetected  = d.motionDetected === true;
+      const devStatus       = d.deviceStatus || 'OFFLINE';
+      const pirAnalysis     = d.pirAnalysis || '';
+      const dogStateServer  = d.dogState || '';
+
+      const now = Date.now();
+      if (motionDetected) {
+        lastMotionTimeWeb = now;
+      }
+
+      // ─── 강아지 상태 판단 ───
+      // 1) PIR 감지 -> 활동 중 (로드셀 무관)
+      // 2) PIR 10초 미감지 & 무게 >= 200g -> 수면 중
+      // 3) PIR 10초 미만 미감지 & 무게 >= 200g -> 착석 중
+      // 4) 무게 < 80g & PIR 미감지 -> 부재 중
+      let dogStatusStr = 'ABSENT'; // 'ACTIVE', 'SLEEPING', 'PRESENT', 'ABSENT'
+      if (dogStateServer) {
+        dogStatusStr = dogStateServer;
+      } else {
+        if (motionDetected) {
+          dogStatusStr = 'ACTIVE';
+        } else if (weight >= 200) {
+          if (now - lastMotionTimeWeb >= 10000) {
+            dogStatusStr = 'SLEEPING';
+          } else {
+            dogStatusStr = 'PRESENT';
+          }
+        } else if (weight < 80) {
+          dogStatusStr = 'ABSENT';
+        }
+      }
 
       // ─── 홈 제어 상태 ───
       const homeStatusEl  = document.getElementById('homeStatusVal');
       const homeStatusSub = document.getElementById('homeStatusSub');
-      if (dogSettled) {
-        homeStatusEl.textContent = '재실 중 (절전 해제)';
+      if (dogStatusStr === 'ACTIVE') {
+        homeStatusEl.textContent = '강아지 활동 중 🐕🏃';
+        homeStatusEl.className   = 'metric-val-yellow';
+        homeStatusSub.textContent = '⚡ PIR 움직임 감지 중 (절전 해제)';
+        homeStatusSub.className   = 'sub-desc-green';
+      } else if (dogStatusStr === 'SLEEPING') {
+        homeStatusEl.textContent = '강아지 수면 중 🐶💤';
         homeStatusEl.className   = 'metric-val-green';
-        homeStatusSub.textContent = '✓ 강아지 방석 위에서 수면 중';
+        homeStatusSub.textContent = '✓ 10초 이상 움직임 없음 + 방석 안착 (절전 모드)';
+        homeStatusSub.className   = 'sub-desc-green';
+      } else if (dogStatusStr === 'PRESENT') {
+        homeStatusEl.textContent = '방석 착석 중 🐶';
+        homeStatusEl.className   = 'metric-val-white';
+        homeStatusSub.textContent = '● 방석 체중 감지 (10초 수면 대기 중)';
         homeStatusSub.className   = 'sub-desc-green';
       } else {
-        homeStatusEl.textContent = '부재 중 (대기 모드)';
+        homeStatusEl.textContent = '부재 중 (대기 모드 🏠)';
         homeStatusEl.className   = 'metric-val-yellow';
         homeStatusSub.textContent = '✓ 대기전력 보호 상태';
         homeStatusSub.className   = 'sub-desc-green';
@@ -320,13 +357,17 @@
         }
       }
 
-      if (dogSettled) {
-        cushionVal.textContent = '안착';
-        cushionSub.textContent = '● 반려견 방석 수면 감지 (무게: ' + weight.toFixed(1) + 'g)';
+      if (dogStatusStr === 'SLEEPING') {
+        cushionVal.textContent = '수면 안착 💤';
+        cushionSub.textContent = '● 반려견 수면 중 (무게: ' + weight.toFixed(1) + 'g)';
+        cushionSub.className   = 'sub-desc-green';
+      } else if (dogStatusStr === 'PRESENT' || dogStatusStr === 'ACTIVE') {
+        cushionVal.textContent = '안착 중 🐶';
+        cushionSub.textContent = '● 반려견 방석 재실 (무게: ' + weight.toFixed(1) + 'g)';
         cushionSub.className   = 'sub-desc-green';
       } else {
         cushionVal.textContent = '미안착';
-        cushionSub.textContent = '○ 반려견 방석 부재 상태 (무게: ' + weight.toFixed(1) + 'g)';
+        cushionSub.textContent = '○ 반려견 부재 상태 (무게: ' + weight.toFixed(1) + 'g)';
         cushionSub.className   = 'sub-desc-gray';
       }
 
