@@ -59,8 +59,8 @@
         <!-- Metric 1: 홈 제어 상태 -->
         <div class="metric-item">
           <div class="metric-label">⚡ 스마트홈 제어 상태</div>
-          <div id="homeStatusVal" class="metric-val-yellow">상태 확인 중...</div>
-          <div id="homeStatusSub" class="sub-desc-green">동일한 Wi-Fi (junyeong) 연결 확인 필요</div>
+          <div id="homeStatusVal" class="metric-val-yellow">부재 중 (대기 모드)</div>
+          <div id="homeStatusSub" class="sub-desc-green">✓ 대기전력 보호 상태</div>
         </div>
 
         <!-- Metric 2: 방석 센서 -->
@@ -268,25 +268,33 @@
     const TUNNEL_URL = 'https://quarters-contributing-yorkshire-halo.trycloudflare.com';
 
     async function fetchStatus() {
+      // 1. Cloudflare HTTPS 터널 호출
       try {
-        let res = await fetch(`${TUNNEL_URL}/api/status`, { signal: AbortSignal.timeout(3500) }).catch(() => null);
-        if (!res || !res.ok) {
-          const fallback = window.location.origin.startsWith('http') && !window.location.origin.includes('vercel')
-            ? window.location.origin
-            : 'http://10.88.232.244:5000';
-          res = await fetch(`${fallback}/api/status`, { signal: AbortSignal.timeout(3500) });
+        const res = await fetch(`${TUNNEL_URL}/api/status`, { cache: 'no-store' });
+        if (res.ok) {
+          const json = await res.json();
+          updateUI(json.data || {});
+          setMqttOnline(true);
+          return;
         }
-        const json = await res.json();
-        updateUI(json.data || {});
-        setMqttOnline(true);
       } catch(e) {
-        setMqttOnline(false);
-        const homeStatusEl  = document.getElementById('homeStatusVal');
-        const homeStatusSub = document.getElementById('homeStatusSub');
-        homeStatusEl.textContent = '❌ 라즈베리파이 서버 대기 중';
-        homeStatusEl.className   = 'metric-val-yellow';
-        homeStatusSub.textContent = '센서 데이터 수신 확인 중...';
+        console.warn('터널 통신 대기 중:', e.message);
       }
+
+      // 2. 로컬 네트워크 (Vercel이 아닐 때만 시도)
+      if (!location.origin.includes('vercel')) {
+        try {
+          const res = await fetch('/api/status', { cache: 'no-store' });
+          if (res.ok) {
+            const json = await res.json();
+            updateUI(json.data || {});
+            setMqttOnline(true);
+            return;
+          }
+        } catch(e) {}
+      }
+
+      setMqttOnline(false);
     }
 
     let lastMotionTimeWeb = 0;
