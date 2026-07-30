@@ -111,7 +111,7 @@
       </div>
     </div>
 
-    <!-- Manual Override Controls matching Image 2 exactly -->
+    <!-- Manual Override Controls -->
     <div class="card" style="margin-bottom: 2rem;">
       <div class="card-title">🎛️ 수동 장치 제어 (Manual Override)</div>
 
@@ -131,7 +131,7 @@
           🏕️ 블라인드 내리기 (현재 올림)
         </div>
 
-        <!-- Box 4: Aircon Control Container matching Image 2 -->
+        <!-- Box 4: Aircon Control Container -->
         <div class="aircon-container">
           <div class="aircon-btn-top">
             ❄️ 에어컨 켜기
@@ -149,7 +149,7 @@
               </div>
             </div>
 
-            <!-- Right Sub-Box: Target Temp with Far Right Arrows -->
+            <!-- Right Sub-Box: Target Temp -->
             <div class="aircon-subbox">
               <div class="subbox-header">
                 희망 온도
@@ -169,36 +169,74 @@
       </div>
     </div>
 
-    <!-- Database Logs Table Card -->
+    <!-- Database Logs & Delete Management Panel matching Image 2 exactly -->
     <div class="card">
       <div class="card-title">🗄️ 데이터베이스 실시간 연동 로그</div>
-      <div class="card-desc" style="margin-bottom:1rem;">시스템 제어 내역 및 가상 IoT 디바이스 로그들이 Supabase 클라우드 데이터베이스에 즉각 누적 및 동기화됩니다.</div>
+      <div class="card-desc" style="margin-bottom:1.5rem;">시스템 제어 내역 및 가상 IoT 디바이스 로그들이 Supabase 클라우드 데이터베이스에 즉각 누적 및 동기화됩니다.</div>
       
-      <div style="overflow-x:auto;">
-        <table>
+      <!-- Table matching Image 2 -->
+      <div style="overflow-x:auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; margin-bottom: 1.5rem;">
+        <table id="logsTable">
           <thead>
             <tr>
-              <th>일시</th>
+              <th>기록 시간</th>
               <th>장치명</th>
               <th>이벤트</th>
-              <th>상세 내용</th>
+              <th>세부 로그</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="logsTbody">
             <tr>
-              <td style="color:#64748b;">2026-07-30 20:30:00</td>
-              <td style="font-weight:600;">스마트 방석 센서</td>
-              <td><span style="background:rgba(251,214,4,0.15); color:#fbd604; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:700;">미안착</span></td>
-              <td style="color:#9aa0a6;">반려견 침대 부재 상태 감지 (대기전력 자동 차단 전환)</td>
+              <td style="color:#9aa0a6;">2026-07-30 11:41:33</td>
+              <td style="font-weight:700; color:#fbd604;">에어컨</td>
+              <td style="color:#ffffff;">수동 제어</td>
+              <td style="color:#9aa0a6;">관리자가 에어컨 전원을 OFF(으)로 수동 전환함 (PWM: 0)</td>
             </tr>
             <tr>
-              <td style="color:#64748b;">2026-07-30 20:15:12</td>
-              <td style="font-weight:600;">BMP280 센서</td>
-              <td><span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:700;">온도 측정</span></td>
-              <td style="color:#9aa0a6;">실내 쾌적 온도 26.6°C 정상 상태 측정 완료</td>
+              <td style="color:#9aa0a6;">2026-07-30 11:41:18</td>
+              <td style="font-weight:700; color:#fbd604;">에어컨</td>
+              <td style="color:#ffffff;">수동 제어</td>
+              <td style="color:#9aa0a6;">관리자가 에어컨 전원을 ON(으)로 수동 전환함 (PWM: 149)</td>
+            </tr>
+            <tr>
+              <td style="color:#9aa0a6;">2026-07-30 11:41:13</td>
+              <td style="font-weight:700; color:#fbd604;">TV</td>
+              <td style="color:#ffffff;">수동 제어</td>
+              <td style="color:#9aa0a6;">관리자가 TV 전원을 OFF(으)로 수동 전환함</td>
+            </tr>
+            <tr>
+              <td style="color:#9aa0a6;">2026-07-30 11:41:08</td>
+              <td style="font-weight:700; color:#fbd604;">TV</td>
+              <td style="color:#ffffff;">수동 제어</td>
+              <td style="color:#9aa0a6;">관리자가 TV 전원을 ON(으)로 수동 전환함</td>
+            </tr>
+            <tr>
+              <td style="color:#9aa0a6;">2026-07-30 10:33:22</td>
+              <td style="font-weight:700; color:#fbd604;">시스템 메인</td>
+              <td style="color:#ffffff;">초기화</td>
+              <td style="color:#9aa0a6;">데이터베이스 모든 로그 수동 삭제 완료 (초기화)</td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Developer Database Delete Management Panel matching Image 2 -->
+      <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 1.25rem;">
+        <div style="color: #ef4444; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; display: flex; items-center; gap: 0.4rem;">
+          ▼ ⚠️ 데이터베이스 관리 메뉴 (개발자용)
+        </div>
+        <div>
+          <button 
+            id="clearLogsBtn" 
+            style="background: transparent; border: 1px solid #ef4444; color: #ef4444; padding: 0.75rem 1.25rem; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.2s ease;"
+            onclick="clearLogs()"
+          >
+            데이터베이스 로그 초기화 (Clear Logs Table)
+          </button>
+          <div style="color: #9aa0a6; font-size: 0.82rem; margin-top: 0.6rem;">
+            클라우드 Supabase DB의 iot_logs 테이블 내용을 완전히 지우고 초기화합니다.
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -238,6 +276,22 @@
         }
       }
     });
+
+    function clearLogs() {
+      if (confirm('정말로 모든 데이터베이스 로그를 초기화하시겠습니까?')) {
+        const tbody = document.getElementById('logsTbody');
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+        tbody.innerHTML = `
+          <tr>
+            <td style="color:#9aa0a6;">${nowStr}</td>
+            <td style="font-weight:700; color:#fbd604;">시스템 메인</td>
+            <td style="color:#ffffff;">초기화</td>
+            <td style="color:#9aa0a6;">데이터베이스 모든 로그 수동 삭제 완료 (초기화)</td>
+          </tr>
+        `;
+        alert('데이터베이스 모든 로그가 초기화 되었습니다.');
+      }
+    }
   </script>
 </body>
 </html>
