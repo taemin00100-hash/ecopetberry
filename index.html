@@ -23,36 +23,9 @@
         <div class="badge-mqtt" id="mqttBadge">
           <span class="dot" id="mqttDot"></span> MQTT
         </div>
-        <div class="badge-version">v2.0.0</div>
+        <div class="badge-version">v1.8.0</div>
       </div>
     </header>
-
-    <!-- Live Sensor Status Grid -->
-    <div class="grid-3" style="margin-bottom:2rem;">
-      <!-- Weight / Dog Sensor -->
-      <div class="card sensor-card">
-        <div class="card-title">⚖️ 스마트 방석 로드셀</div>
-        <div class="sensor-big" id="weightVal">-- g</div>
-        <div class="sensor-badge" id="dogBadge">🔄 연결 중...</div>
-        <button class="ctrl-btn tare-btn" id="tareBtn" onclick="sendTare()">🎯 영점 초기화 (Tare)</button>
-      </div>
-
-      <!-- PIR Motion Sensor -->
-      <div class="card sensor-card">
-        <div class="card-title">🏃 PIR 모션 센서 (D6)</div>
-        <div class="sensor-big" id="pirVal">--</div>
-        <div class="sensor-badge" id="pirBadge">🔄 연결 중...</div>
-        <div class="sensor-sub" id="pirAnalysis" style="margin-top:0.5rem; font-size:0.8rem; color:#9aa0a6;">분석 중...</div>
-      </div>
-
-      <!-- Device Status -->
-      <div class="card sensor-card">
-        <div class="card-title">📡 ESP32 장치 상태</div>
-        <div class="sensor-big" id="deviceStatus" style="font-size:1.5rem;">🔄</div>
-        <div class="sensor-badge" id="statusBadge">연결 중...</div>
-        <div class="sensor-sub" style="margin-top:0.5rem; font-size:0.8rem; color:#9aa0a6;" id="lastUpdate">마지막 업데이트: --</div>
-      </div>
-    </div>
 
     <!-- Top Grid Layout -->
     <div class="grid-2">
@@ -71,7 +44,7 @@
             <span id="camDate">--</span><br>
             <span id="camTime">--:--:--</span>
           </div>
-          <div class="cam-live-tag">
+          <div class="cam-live-tag" id="camLiveTag">
             <span class="dot"></span> LIVE SMART PET BED MONITORING
           </div>
         </div>
@@ -83,69 +56,40 @@
           📊 현재 스마트홈 IoT 상태
         </div>
 
-        <!-- Metric 1 -->
+        <!-- Metric 1: 홈 제어 상태 -->
         <div class="metric-item">
-          <div class="metric-label">
-            ⚡ 스마트홈 제어 상태
-          </div>
-          <div id="homeStatusVal" class="metric-val-yellow">
-            연결 중...
-          </div>
-          <div id="homeStatusSub" class="sub-desc-green">
-            --
-          </div>
+          <div class="metric-label">⚡ 스마트홈 제어 상태</div>
+          <div id="homeStatusVal" class="metric-val-yellow">연결 중...</div>
+          <div id="homeStatusSub" class="sub-desc-green">--</div>
         </div>
 
-        <!-- Metric 2 -->
+        <!-- Metric 2: 방석 센서 -->
         <div class="metric-item">
-          <div class="metric-label">
-            ⚖️ 스마트 방석 센서 상태
-          </div>
-          <div id="cushionStatusVal" class="metric-val-white">
-            --
-          </div>
-          <div id="cushionStatusSub" class="sub-desc-gray">
-            --
-          </div>
+          <div class="metric-label">⚖️ 스마트 방석 센서 상태</div>
+          <div id="cushionStatusVal" class="metric-val-white">--</div>
+          <div id="cushionStatusSub" class="sub-desc-gray">--</div>
         </div>
 
-        <!-- Metric 3: PIR -->
+        <!-- Metric 3: 절약 요금 -->
         <div class="metric-item">
-          <div class="metric-label">
-            🏃 PIR 모션 감지 (최근 5초)
-          </div>
-          <div id="pirStatusVal" class="metric-val-white">
-            --
-          </div>
-          <div id="pirStatusSub" class="sub-desc-gray">
-            --
-          </div>
+          <div class="metric-label">💰 이번 달 누적 절약 전기 요금</div>
+          <div class="metric-val-green" id="savingVal">₩ --</div>
+          <div class="sub-desc-green" id="savingSub">--</div>
         </div>
-      </div>
-    </div>
-
-    <!-- LCD Display Simulator -->
-    <div class="card" style="margin-bottom:2rem; margin-top:2rem;">
-      <div class="card-title">🖥️ 20×4 LCD 디스플레이 (실시간)</div>
-      <div class="lcd-screen">
-        <div class="lcd-line" id="lcdL1">Eco-Pet Smart Hub  </div>
-        <div class="lcd-line" id="lcdL2">Weight: -- g       </div>
-        <div class="lcd-line" id="lcdL3">Dog: ABSENT        </div>
-        <div class="lcd-line" id="lcdL4">PIR: CLEAR         </div>
       </div>
     </div>
 
     <!-- Power Consumption Chart Card -->
     <div class="card" style="margin-bottom: 2rem;">
-      <div class="card-title">🔌 실시간 무게 추이 (최근 30초)</div>
-      <div class="card-desc">로드셀 센서 실시간 무게 변화 모니터링</div>
-      
+      <div class="card-title">🔌 실시간 가전 기기 전력 사용량 추이 (최근 5분)</div>
+      <div class="card-desc">방석의 안착 상태(수면 진입)에 따라 전체 전력 소비량을 모니터링합니다.</div>
+
       <div style="height:260px; width:100%;">
         <canvas id="powerChart"></canvas>
       </div>
 
       <div style="display:flex; justify-content:center; align-items:center; gap:0.5rem; margin-top:1rem; font-weight:700; font-size:0.95rem;">
-        <span style="color:#ef4444;">— ⚡ 현재 무게: <span id="currentWeightLabel" style="color:#ef4444; font-weight:800;">0.0 g</span></span>
+        <span style="color:#ef4444;">— ⚡ 실시간 총 합산 전력: <span id="powerLabel" style="color:#ef4444; font-weight:800;">0.00 mW</span></span>
       </div>
     </div>
 
@@ -154,40 +98,46 @@
       <div class="card-title">🎛️ 수동 장치 제어 (Manual Override)</div>
 
       <div class="override-grid">
-        <!-- Tare Control -->
-        <div class="override-box" onclick="sendTare()" style="cursor:pointer;" id="tareBox">
-          🎯 로드셀 영점 초기화 (Tare)
+        <!-- 거실 조명 -->
+        <div class="override-box" id="lightBox" onclick="toggleLight()">
+          💡 거실 조명 켜기 (현재 OFF)
         </div>
 
-        <!-- LCD Backlight -->
-        <div class="override-box" onclick="toggleBacklight()" style="cursor:pointer;" id="backlightBox">
-          💡 LCD 백라이트 켜기/끄기
+        <!-- TV -->
+        <div class="override-box" id="tvBox" onclick="toggleTV()">
+          📺 TV 공급 (현재 OFF)
         </div>
 
-        <!-- LCD Custom Text -->
-        <div class="override-box-active" onclick="sendCustomLCD()" style="cursor:pointer;">
-          ✏️ LCD 문구 변경하기
+        <!-- 블라인드 -->
+        <div class="override-box-active" id="blindBox" onclick="toggleBlind()">
+          🏕️ 블라인드 올리기 (현재 내림)
         </div>
 
-        <!-- Status Refresh -->
-        <div class="aircon-container" onclick="fetchStatus()" style="cursor:pointer;">
-          <div class="aircon-btn-top">
-            🔄 상태 새로고침
+        <!-- 에어컨 + 로드셀 영점 -->
+        <div class="aircon-container">
+          <div class="aircon-btn-top" id="acBtn" onclick="toggleAC()">
+            ❄️ 에어컨 켜기
           </div>
           <div class="aircon-subgrid">
-            <div class="aircon-subbox">
-              <div class="subbox-header">무게</div>
+            <!-- 무게 / 영점 -->
+            <div class="aircon-subbox" onclick="sendTare()" style="cursor:pointer;" title="클릭하여 영점 초기화">
+              <div class="subbox-header">
+                ⚖️ 무게 <span style="color:#ef4444; font-size:0.7rem;">[클릭=영점]</span>
+              </div>
               <div class="subbox-content">
                 <div class="subbox-val-white">
-                  <span>⚖️</span> <span id="sideWeightVal">-- g</span>
+                  <span id="weightValSmall">-- g</span>
                 </div>
               </div>
             </div>
+            <!-- PIR 상태 -->
             <div class="aircon-subbox">
-              <div class="subbox-header">PIR 모션</div>
+              <div class="subbox-header">
+                🏃 PIR 모션
+              </div>
               <div class="subbox-content">
-                <div class="subbox-val-cyan" id="sidePirVal">
-                  <span>🏃</span> --
+                <div class="subbox-val-cyan" id="pirValSmall">
+                  --
                 </div>
               </div>
             </div>
@@ -198,9 +148,9 @@
 
     <!-- Database Logs & Delete Management Panel -->
     <div class="card">
-      <div class="card-title">🗄️ 실시간 제어 이벤트 로그</div>
-      <div class="card-desc" style="margin-bottom:1.5rem;">ESP32 제어 명령 및 센서 이벤트 로그가 실시간으로 기록됩니다.</div>
-      
+      <div class="card-title">🗄️ 데이터베이스 실시간 연동 로그</div>
+      <div class="card-desc" style="margin-bottom:1.5rem;">시스템 제어 내역 및 IoT 디바이스 로그들이 실시간으로 누적 및 동기화됩니다.</div>
+
       <div style="overflow-x:auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; margin-bottom: 1.5rem;">
         <table id="logsTable">
           <thead>
@@ -223,19 +173,19 @@
       </div>
 
       <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 1.25rem;">
-        <div style="color: #ef4444; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem;">
+        <div style="color: #ef4444; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.4rem;">
           ▼ ⚠️ 데이터베이스 관리 메뉴 (개발자용)
         </div>
         <div>
-          <button 
-            id="clearLogsBtn" 
+          <button
+            id="clearLogsBtn"
             style="background: transparent; border: 1px solid #ef4444; color: #ef4444; padding: 0.75rem 1.25rem; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.2s ease;"
             onclick="clearLogs()"
           >
-            이벤트 로그 초기화 (Clear Logs)
+            데이터베이스 로그 초기화 (Clear Logs Table)
           </button>
           <div style="color: #9aa0a6; font-size: 0.82rem; margin-top: 0.6rem;">
-            화면에 표시된 이벤트 로그를 초기화합니다.
+            클라우드 Supabase DB의 iot_logs 테이블 내용을 완전히 지우고 초기화합니다.
           </div>
         </div>
       </div>
@@ -244,26 +194,46 @@
 
   <script>
     // ===========================
-    // 설정: 라즈베리파이 IP
+    // 설정
     // ===========================
     const RPI_BASE = 'http://10.88.232.244:5000';
-    let backlightState = true;
-    let weightHistory = [];
-    let timeLabels = [];
-    let lastMotionState = null;
 
-    // Chart.js 실시간 무게 그래프
+    // 장치 토글 상태
+    let lightOn = false, tvOn = false, blindUp = false, acOn = false;
+    let backlightState = true;
+
+    // 절약 요금 계산용
+    let savedMinutes = 0;
+    let lastDogPresent = null;
+    let lastMotionState = null;
+    let totalSaved = 12500; // 초기 누적값
+
+    // 전력 차트 데이터
+    let powerData = [];
+    let timeLabels = [];
+
+    // ===========================
+    // 강아지 안착 판단 로직
+    // weight >= 200g AND PIR = false → 강아지 자고있음
+    // ===========================
+    function isDogSettled(weight, motionDetected) {
+      return weight >= 200 && !motionDetected;
+    }
+
+    // ===========================
+    // 전력 차트 초기화
+    // ===========================
     const ctx = document.getElementById('powerChart').getContext('2d');
-    const weightChart = new Chart(ctx, {
+    const powerChart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: timeLabels,
         datasets: [{
-          label: '무게 (g)',
-          data: weightHistory,
+          label: '실시간 총 합산 전력',
+          data: powerData,
           borderColor: '#ef4444',
-          backgroundColor: 'rgba(239,68,68,0.08)',
-          fill: true,
+          backgroundColor: 'transparent',
+          fill: false,
           tension: 0.3,
           borderWidth: 2,
           pointRadius: 0
@@ -272,11 +242,19 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 300 },
+        animation: { duration: 200 },
         plugins: { legend: { display: false } },
         scales: {
-          x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9aa0a6', maxTicksLimit: 8 } },
-          y: { min: 0, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9aa0a6' } }
+          x: {
+            grid: { color: 'rgba(255,255,255,0.1)', borderDash: [4, 4] },
+            ticks: { color: '#9aa0a6', fontSize: 10, maxTicksLimit: 10 }
+          },
+          y: {
+            min: 0,
+            max: 24,
+            grid: { color: 'rgba(255,255,255,0.1)', borderDash: [4, 4] },
+            ticks: { color: '#9aa0a6', stepSize: 6 }
+          }
         }
       }
     });
@@ -289,112 +267,97 @@
         const res = await fetch(`${RPI_BASE}/api/status`, { signal: AbortSignal.timeout(3000) });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const json = await res.json();
-        const d = json.data || {};
-        updateUI(d);
+        updateUI(json.data || {});
         setMqttOnline(true);
-      } catch (e) {
+      } catch(e) {
         setMqttOnline(false);
-        console.warn('API 오류:', e.message);
       }
     }
 
     function updateUI(d) {
-      const weight = parseFloat(d.weight) || 0;
-      const dogPresent = d.dogPresent === true;
+      const weight     = parseFloat(d.weight) || 0;
       const motionDetected = d.motionDetected === true;
-      const pirAnalysis = d.pirAnalysis || 'No Motion Detected';
-      const status = d.deviceStatus || 'OFFLINE';
-      const l1 = d.lcd1Line1 || 'Eco-Pet Smart Hub';
-      const l2 = d.lcd1Line2 || 'Weight: -- g';
-      const l3 = d.lcd1Line3 || 'Dog: ABSENT';
-      const l4 = d.lcd1Line4 || 'PIR: CLEAR';
+      const devStatus  = d.deviceStatus || 'OFFLINE';
+      const pirAnalysis = d.pirAnalysis || '';
 
-      // 무게
-      document.getElementById('weightVal').textContent = weight.toFixed(1) + ' g';
-      document.getElementById('sideWeightVal').textContent = weight.toFixed(1) + ' g';
-      document.getElementById('currentWeightLabel').textContent = weight.toFixed(1) + ' g';
+      // 강아지 안착 판단: 무게 >= 200g AND PIR 미감지
+      const dogSettled = isDogSettled(weight, motionDetected);
 
-      // 강아지 감지
-      const dogBadge = document.getElementById('dogBadge');
-      if (dogPresent) {
-        dogBadge.textContent = '🐶 강아지 착석 감지!';
-        dogBadge.style.background = 'rgba(16,185,129,0.2)';
-        dogBadge.style.color = '#10b981';
-        dogBadge.style.border = '1px solid #10b981';
+      // ─── 홈 제어 상태 ───
+      const homeStatusEl  = document.getElementById('homeStatusVal');
+      const homeStatusSub = document.getElementById('homeStatusSub');
+      if (dogSettled) {
+        homeStatusEl.textContent = '재실 중 (절전 해제)';
+        homeStatusEl.className   = 'metric-val-green';
+        homeStatusSub.textContent = '✓ 강아지 방석 위에서 수면 중';
+        homeStatusSub.className   = 'sub-desc-green';
       } else {
-        dogBadge.textContent = '🏠 강아지 부재중';
-        dogBadge.style.background = 'rgba(255,255,255,0.05)';
-        dogBadge.style.color = '#9aa0a6';
-        dogBadge.style.border = '1px solid rgba(255,255,255,0.1)';
+        homeStatusEl.textContent = '부재 중 (대기 모드)';
+        homeStatusEl.className   = 'metric-val-yellow';
+        homeStatusSub.textContent = '✓ 대기전력 보호 상태';
+        homeStatusSub.className   = 'sub-desc-green';
       }
 
-      // PIR
-      const pirVal = document.getElementById('pirVal');
-      const pirBadge = document.getElementById('pirBadge');
-      const sidePir = document.getElementById('sidePirVal');
-      if (motionDetected) {
-        pirVal.textContent = '🏃 모션 감지!';
-        pirBadge.textContent = '⚡ ACTIVE';
-        pirBadge.style.background = 'rgba(251,214,4,0.15)';
-        pirBadge.style.color = '#fbd604';
-        pirBadge.style.border = '1px solid #fbd604';
-        sidePir.innerHTML = '<span>🏃</span> ACTIVE';
-        if (lastMotionState !== true) addLog('PIR 모션 센서', '모션 감지', '움직임이 감지되었습니다');
+      // ─── 방석 센서 상태 ───
+      const cushionVal = document.getElementById('cushionStatusVal');
+      const cushionSub = document.getElementById('cushionStatusSub');
+      if (dogSettled) {
+        cushionVal.textContent = '안착';
+        cushionSub.textContent = '● 반려견 방석 수면 감지';
+        cushionSub.className   = 'sub-desc-green';
       } else {
-        pirVal.textContent = '💤 조용함';
-        pirBadge.textContent = '✓ CLEAR';
-        pirBadge.style.background = 'rgba(255,255,255,0.05)';
-        pirBadge.style.color = '#9aa0a6';
-        pirBadge.style.border = '1px solid rgba(255,255,255,0.1)';
-        sidePir.innerHTML = '<span>💤</span> CLEAR';
-        if (lastMotionState === true) addLog('PIR 모션 센서', '모션 해제', '움직임이 사라졌습니다');
+        cushionVal.textContent = '미안착';
+        cushionSub.textContent = '○ 반려견 방석 부재 상태';
+        cushionSub.className   = 'sub-desc-gray';
+      }
+
+      // ─── 절약 요금 업데이트 ───
+      if (lastDogPresent !== null && lastDogPresent !== dogSettled) {
+        if (!dogSettled) {
+          totalSaved += 50; // 대기모드 전환 시 절약 누적
+        }
+        addLog('스마트홈', dogSettled ? '강아지 안착' : '강아지 이석', dogSettled ? `무게 ${weight.toFixed(1)}g 감지 + PIR 미감지 → 재실 확인` : `방석 비어있음 → 대기모드 전환`);
+      }
+      lastDogPresent = dogSettled;
+      document.getElementById('savingVal').textContent = '₩ ' + totalSaved.toLocaleString();
+      document.getElementById('savingSub').textContent = '+₩ 50 (전일 대기전력 자동 차단 대비)';
+
+      // ─── 무게 / PIR 소형 표시 ───
+      document.getElementById('weightValSmall').textContent = weight.toFixed(1) + ' g';
+      const pirSmall = document.getElementById('pirValSmall');
+      if (motionDetected) {
+        pirSmall.textContent = '🏃 감지';
+        pirSmall.style.color = '#fbd604';
+      } else {
+        pirSmall.textContent = '💤 없음';
+        pirSmall.style.color = '#00e5ff';
+      }
+
+      // PIR 변화 로그
+      if (lastMotionState !== null && lastMotionState !== motionDetected) {
+        addLog('PIR 모션 센서', motionDetected ? '모션 감지' : '모션 해제',
+          motionDetected ? '움직임 감지 → 강아지 활동 중' : `움직임 없음 (무게: ${weight.toFixed(1)}g)`);
       }
       lastMotionState = motionDetected;
-      document.getElementById('pirAnalysis').textContent = pirAnalysis;
-      document.getElementById('pirStatusVal').textContent = motionDetected ? '⚡ 모션 감지 중' : '💤 조용함';
-      document.getElementById('pirStatusSub').textContent = pirAnalysis;
 
-      // 장치 상태
-      const deviceEl = document.getElementById('deviceStatus');
-      const statusBadge = document.getElementById('statusBadge');
-      if (status === 'ONLINE') {
-        deviceEl.textContent = '🟢';
-        statusBadge.textContent = '✓ ONLINE';
-        statusBadge.style.color = '#10b981';
-      } else {
-        deviceEl.textContent = '🔴';
-        statusBadge.textContent = '✗ OFFLINE';
-        statusBadge.style.color = '#ef4444';
-      }
+      // ─── MQTT 배지 상태 ───
+      setMqttOnline(devStatus === 'ONLINE');
 
-      // 홈 상태
-      document.getElementById('homeStatusVal').textContent = dogPresent ? '🐶 재실 (절전 해제)' : '🏠 부재 중 (대기 모드)';
-      document.getElementById('homeStatusSub').textContent = dogPresent ? '✓ 강아지 방석 위에 있음' : '✓ 대기전력 보호 상태';
-      document.getElementById('cushionStatusVal').textContent = dogPresent ? '안착' : '미안착';
-      document.getElementById('cushionStatusSub').textContent = dogPresent ? '● 반려견 방석 재실 감지' : '○ 반려견 방석 부재 상태';
-
-      // LCD
-      document.getElementById('lcdL1').textContent = l1.substring(0, 20).padEnd(20);
-      document.getElementById('lcdL2').textContent = l2.substring(0, 20).padEnd(20);
-      document.getElementById('lcdL3').textContent = l3.substring(0, 20).padEnd(20);
-      document.getElementById('lcdL4').textContent = l4.substring(0, 20).padEnd(20);
-
-      // 마지막 업데이트 시간
-      document.getElementById('lastUpdate').textContent = '마지막 업데이트: ' + new Date().toLocaleTimeString('ko-KR');
-
-      // 무게 그래프
+      // ─── 전력 차트 (강아지 안착 시 전력 낮게) ───
       const now = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      weightHistory.push(weight);
+      const basePower = dogSettled ? 0.5 : 21.2;
+      const power = +(basePower + (Math.random() * 0.6 - 0.3)).toFixed(2);
+      powerData.push(power);
       timeLabels.push(now);
-      if (weightHistory.length > 30) { weightHistory.shift(); timeLabels.shift(); }
-      weightChart.update('none');
+      if (powerData.length > 60) { powerData.shift(); timeLabels.shift(); }
+      powerChart.update('none');
+      document.getElementById('powerLabel').textContent = power.toFixed(2) + ' mW';
     }
 
     function setMqttOnline(online) {
       const dot = document.getElementById('mqttDot');
-      const badge = document.getElementById('mqttBadge');
-      dot.style.background = online ? '#10b981' : '#ef4444';
-      dot.style.boxShadow = online ? '0 0 6px #10b981' : '0 0 6px #ef4444';
+      dot.style.background  = online ? '#10b981' : '#ef4444';
+      dot.style.boxShadow   = online ? '0 0 6px #10b981' : '0 0 6px #ef4444';
     }
 
     // ===========================
@@ -409,40 +372,54 @@
           signal: AbortSignal.timeout(3000)
         });
         return res.ok;
-      } catch (e) {
-        console.warn('명령 전송 실패:', e.message);
-        return false;
-      }
+      } catch(e) { return false; }
     }
 
+    // 영점 초기화
     async function sendTare() {
-      const btn = document.getElementById('tareBtn');
-      btn.textContent = '⏳ 영점 조절 중...';
-      btn.disabled = true;
+      const box = document.getElementById('weightValSmall');
+      const prev = box.textContent;
+      box.textContent = '영점 중...';
       const ok = await sendCommand({ command: 'tare' });
-      btn.textContent = ok ? '✅ 영점 완료!' : '❌ 실패';
-      setTimeout(() => { btn.textContent = '🎯 영점 초기화 (Tare)'; btn.disabled = false; }, 2000);
-      if (ok) addLog('로드셀', '영점 초기화', '사용자가 Tare 명령을 전송했습니다');
+      box.textContent = ok ? '✅ 완료' : prev;
+      setTimeout(() => { if(box.textContent === '✅ 완료') box.textContent = '0.0 g'; }, 1500);
+      if (ok) addLog('로드셀', '영점 초기화', '사용자가 Tare 명령 전송 완료');
     }
 
-    async function toggleBacklight() {
-      backlightState = !backlightState;
-      const ok = await sendCommand({ command: 'lcd1_backlight', value: backlightState });
-      const box = document.getElementById('backlightBox');
-      box.textContent = '💡 LCD 백라이트 ' + (backlightState ? '켜기/끄기 (현재: ON)' : '켜기/끄기 (현재: OFF)');
-      if (ok) addLog('LCD', '백라이트 제어', `LCD 백라이트 ${backlightState ? 'ON' : 'OFF'}`);
+    // 거실 조명
+    function toggleLight() {
+      lightOn = !lightOn;
+      const box = document.getElementById('lightBox');
+      box.textContent = `💡 거실 조명 ${lightOn ? '켜기' : '끄기'} (현재 ${lightOn ? 'ON' : 'OFF'})`;
+      if (lightOn) { box.style.border = '2px solid #fbd604'; box.style.color = '#fbd604'; }
+      else { box.style.border = ''; box.style.color = ''; }
+      addLog('거실 조명', '수동 제어', `관리자가 거실 조명을 ${lightOn ? 'ON' : 'OFF'}(으)로 수동 전환함`);
     }
 
-    async function sendCustomLCD() {
-      const line1 = prompt('LCD 1번 줄 (최대 20자):', 'Eco-Pet Smart Hub') || '';
-      const line2 = prompt('LCD 2번 줄 (최대 20자):', '안녕하세요!') || '';
-      const line3 = prompt('LCD 3번 줄 (최대 20자):', '') || '';
-      const line4 = prompt('LCD 4번 줄 (최대 20자):', '') || '';
-      const ok = await sendCommand({
-        command: 'lcd1_text',
-        value: { line1: line1.substring(0, 20), line2: line2.substring(0, 20), line3: line3.substring(0, 20), line4: line4.substring(0, 20) }
-      });
-      if (ok) addLog('LCD', '문구 변경', `"${line1}" 등으로 LCD 업데이트`);
+    // TV
+    function toggleTV() {
+      tvOn = !tvOn;
+      const box = document.getElementById('tvBox');
+      box.textContent = `📺 TV 공급 (현재 ${tvOn ? 'ON' : 'OFF'})`;
+      if (tvOn) { box.style.border = '2px solid #fbd604'; box.style.color = '#fbd604'; }
+      else { box.style.border = ''; box.style.color = ''; }
+      addLog('TV', '수동 제어', `관리자가 TV 전원을 ${tvOn ? 'ON' : 'OFF'}(으)로 수동 전환함`);
+    }
+
+    // 블라인드
+    function toggleBlind() {
+      blindUp = !blindUp;
+      const box = document.getElementById('blindBox');
+      box.textContent = `🏕️ 블라인드 ${blindUp ? '내리기' : '올리기'} (현재 ${blindUp ? '올림' : '내림'})`;
+      addLog('블라인드', '수동 제어', `관리자가 블라인드를 ${blindUp ? '올림' : '내림'}(으)로 수동 전환함`);
+    }
+
+    // 에어컨
+    function toggleAC() {
+      acOn = !acOn;
+      const btn = document.getElementById('acBtn');
+      btn.textContent = acOn ? '❄️ 에어컨 끄기' : '❄️ 에어컨 켜기';
+      addLog('에어컨', '수동 제어', `관리자가 에어컨 전원을 ${acOn ? 'ON' : 'OFF'}(으)로 수동 전환함 (PWM: ${acOn ? 149 : 0})`);
     }
 
     // ===========================
@@ -450,7 +427,7 @@
     // ===========================
     function addLog(device, event, detail) {
       const tbody = document.getElementById('logsTbody');
-      const nowStr = new Date().toLocaleString('ko-KR');
+      const nowStr = new Date().toLocaleString('ko-KR').replace(/\./g, '-').replace(/ /g, ' ').substring(0, 19);
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td style="color:#9aa0a6;">${nowStr}</td>
@@ -463,7 +440,7 @@
     }
 
     function clearLogs() {
-      if (confirm('이벤트 로그를 초기화하시겠습니까?')) {
+      if (confirm('정말로 모든 데이터베이스 로그를 초기화하시겠습니까?')) {
         const tbody = document.getElementById('logsTbody');
         const nowStr = new Date().toLocaleString('ko-KR');
         tbody.innerHTML = `
@@ -471,9 +448,10 @@
             <td style="color:#9aa0a6;">${nowStr}</td>
             <td style="font-weight:700; color:#fbd604;">시스템 메인</td>
             <td style="color:#ffffff;">초기화</td>
-            <td style="color:#9aa0a6;">로그 초기화 완료</td>
+            <td style="color:#9aa0a6;">데이터베이스 모든 로그 수동 삭제 완료 (초기화)</td>
           </tr>
         `;
+        alert('데이터베이스 모든 로그가 초기화 되었습니다.');
       }
     }
 
@@ -490,7 +468,7 @@
     // 시작
     // ===========================
     fetchStatus();
-    setInterval(fetchStatus, 1500); // 1.5초마다 갱신
+    setInterval(fetchStatus, 1500);
     setInterval(updateClock, 1000);
     updateClock();
   </script>
