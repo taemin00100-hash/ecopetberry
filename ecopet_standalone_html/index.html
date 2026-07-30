@@ -3,84 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🌱 Eco-Pet Care Standalone Template</title>
+  <title>🌱 Eco-Pet Care Smart Home IoT Dashboard</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Chart.js for smooth power graph -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="container">
-    <!-- Header -->
+    <!-- Top Header Box matching screenshot -->
     <header>
       <div>
-        <div class="title">🎨 Eco-Pet Care UI Design Template</div>
-        <div class="subtitle">친구 전달용 단독 HTML/CSS 정적 디자인 템플릿입니다. 원하는 대로 마음껏 수정하실 수 있습니다.</div>
+        <div class="title">
+          <span>🌱</span> Eco-Pet Care Smart Home IoT Dashboard
+        </div>
+        <div class="subtitle">
+          반려동물의 실시간 행동 상태(수면/부재) 및 스마트 방석 착석 여부 감지 데이터를 분석하여 가전기기 대기전력을 자동으로 제어하는 스마트 홈 전력 최적화 솔루션입니다.
+        </div>
       </div>
-      <div class="badge">STANDALONE HTML/CSS</div>
+      <div class="header-badges">
+        <div class="badge-mqtt">
+          <span class="dot"></span> MQTT
+        </div>
+        <div class="badge-version">v1.6.0</div>
+      </div>
     </header>
 
-    <!-- Top Grid: Camera & Metrics -->
+    <!-- Top Grid Layout: CCTV Monitoring Feed & Current IoT Status -->
     <div class="grid-2">
-      <!-- Live Camera Showcase -->
+      <!-- Left Card: CCTV Monitoring Feed -->
       <div class="card">
         <div class="card-title">
-          <span>📷 카메라 실시간 영상 뷰어</span>
-          <span style="background:#10b981; color:#000; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:800;">LIVE DEMO</span>
+          📺 CCTV 모니터링 피드
+        </div>
+        <div class="cctv-header-bar">
+          LIVE REC [1080P] <span>| 거실 스마트 펫 침대</span>
         </div>
         <div class="camera-box">
-          <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop" alt="Pet Camera Demo">
-          <div class="cam-tag">📍 거실 스마트 방석 구역</div>
+          <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop" alt="Sleeping Pet Bed">
+          <div class="cam-timestamp">
+            CAM 01<br>
+            2023-10-27<br>
+            23:14:48
+          </div>
+          <div class="cam-live-tag">
+            <span class="dot"></span> LIVE SMART PET BED MONITORING
+          </div>
         </div>
       </div>
 
-      <!-- System Summary -->
-      <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
-        <div>
-          <div class="card-title">⚡ 대기전력 자동 차단 시스템 요약</div>
-          
-          <div class="metric-item">
-            <div class="metric-label">🐕 반려동물 스마트 방석 안착 감지</div>
-            <div class="metric-val" style="color:#10b981;">🟢 안착함 (수면 진입 모드)</div>
-            <div style="font-size:0.8rem; color:#9aa0a6; margin-top:4px;">로드셀 & PIR 모션 센서 가중치 알고리즘 구동 중</div>
-          </div>
+      <!-- Right Card: Current Smart Home IoT Status -->
+      <div class="card">
+        <div class="card-title">
+          📊 현재 스마트홈 IoT 상태
+        </div>
 
-          <div class="metric-item">
-            <div class="metric-label">🍃 실시간 이산화탄소 절감량</div>
-            <div class="metric-val" style="color:#fbd604;">4.82 kg CO₂</div>
-            <div style="font-size:0.8rem; color:#10b981; margin-top:4px; font-weight:600;">🌱 소나무 약 0.73그루 심은 효과</div>
+        <!-- Metric 1: Smart Home Control Status -->
+        <div class="metric-item">
+          <div class="metric-label">
+            ⚡ 스마트홈 제어 상태
           </div>
+          <div class="metric-val-yellow">
+            부재 중 (대기 모드)
+          </div>
+          <div class="sub-desc-green">
+            ✓ 대기전력 보호 상태
+          </div>
+        </div>
 
-          <div class="metric-item" style="border-bottom:none;">
-            <div class="metric-label">💰 이번 달 누적 절약 전기 요금</div>
-            <div class="metric-val" style="color:#10b981;">₩ 12,500</div>
+        <!-- Metric 2: Smart Cushion Sensor Status -->
+        <div class="metric-item">
+          <div class="metric-label">
+            ⚖️ 스마트 방석 센서 상태
+          </div>
+          <div class="metric-val-white">
+            미안착
+          </div>
+          <div class="sub-desc-gray">
+            ○ 반려견 침대 부재 상태
+          </div>
+        </div>
+
+        <!-- Metric 3: Monthly Power Savings -->
+        <div class="metric-item">
+          <div class="metric-label">
+            💰 이번 달 누적 절약 전기 요금
+          </div>
+          <div class="metric-val-green">
+            ₩ 12,500
+          </div>
+          <div class="sub-desc-green">
+            +₩ 1,200 (전일 대기전력 자동 차단 대비)
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Power Chart -->
+    <!-- Power Consumption Chart -->
     <div class="card" style="margin-bottom: 2rem;">
       <div class="card-title">🔌 실시간 가전 기기 전력 사용량 추이 (최근 5분)</div>
-      <p style="color:#9aa0a6; font-size:0.85rem; margin-bottom:1rem;">방석 안착 상태에 따른 실시간 전력 그래프 예시입니다.</p>
-      <div style="height:250px; width:100%;">
+      <p style="color:#9aa0a6; font-size:0.85rem; margin-bottom:1.5rem;">방석 안착 상태에 따른 실시간 합산 전력 소비량 모니터링입니다.</p>
+      <div style="height:280px; width:100%;">
         <canvas id="powerChart"></canvas>
       </div>
     </div>
 
-    <!-- Device Control Buttons (UI Template) -->
+    <!-- Appliance Controls -->
     <div class="card" style="margin-bottom: 2rem;">
-      <div class="card-title">🎛️ 가전 기기 제어 버튼 레이아웃 템플릿</div>
+      <div class="card-title">🎛️ 스마트홈 가전 기기 수동 제어</div>
       <div class="btn-grid" style="margin-top:1rem;">
-        <button class="btn btn-active" onclick="alert('친구분이 이 코드를 마음껏 수정하여 사용하실 수 있습니다!')">💡 거실 조명 (ON)</button>
-        <button class="btn" onclick="alert('디자인 전용 템플릿입니다.')">📺 TV (OFF)</button>
-        <button class="btn" onclick="alert('디자인 전용 템플릿입니다.')">⛺ 블라인드 (닫힘)</button>
-        <button class="btn" style="border-color:#06b6d4; color:#06b6d4;" onclick="alert('디자인 전용 템플릿입니다.')">❄️ 에어컨 24°C</button>
+        <button class="btn" style="border-color:#fbd604; color:#fbd604;">💡 거실 조명 (ON)</button>
+        <button class="btn">📺 TV (OFF)</button>
+        <button class="btn">⛺ 블라인드 (닫힘)</button>
+        <button class="btn" style="border-color:#10b981; color:#10b981;">❄️ 에어컨 24°C</button>
       </div>
     </div>
 
     <!-- Database Logs Table -->
     <div class="card">
-      <div class="card-title">🗄️ 시스템 상태 로그 테이블 양식</div>
+      <div class="card-title">🗄️ 데이터베이스 실시간 연동 로그</div>
       <div style="overflow-x:auto; margin-top:1rem;">
         <table>
           <thead>
@@ -93,16 +132,16 @@
           </thead>
           <tbody>
             <tr>
-              <td style="color:#64748b;">2026-07-30 19:10:00</td>
-              <td style="font-weight:600;">시스템 메인</td>
-              <td><span style="background:rgba(59,130,246,0.15); color:#60a5fa; padding:2px 6px; border-radius:4px; font-size:0.75rem;">템플릿 뷰</span></td>
-              <td style="color:#9aa0a6;">독립 단독 HTML/CSS 디자인 템플릿이 로드되었습니다.</td>
+              <td style="color:#64748b;">2026-07-30 20:00:00</td>
+              <td style="font-weight:600;">스마트 방석 센서</td>
+              <td><span style="background:rgba(251,214,4,0.15); color:#fbd604; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:700;">미안착</span></td>
+              <td style="color:#9aa0a6;">반려견 침대 부재 상태 감지 (대기전력 자동 차단 전환)</td>
             </tr>
             <tr>
-              <td style="color:#64748b;">2026-07-30 19:05:00</td>
-              <td style="font-weight:600;">스마트 방석</td>
-              <td><span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 6px; border-radius:4px; font-size:0.75rem;">안착 감지</span></td>
-              <td style="color:#9aa0a6;">반려동물 안착 상태 감지 (수면 진입 모드)</td>
+              <td style="color:#64748b;">2026-07-30 19:45:12</td>
+              <td style="font-weight:600;">BMP280 센서</td>
+              <td><span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:700;">온도 측정</span></td>
+              <td style="color:#9aa0a6;">실내 쾌적 온도 24.5°C 정상 상태 유지 중</td>
             </tr>
           </tbody>
         </table>
@@ -111,7 +150,6 @@
   </div>
 
   <script>
-    // Smooth Power Chart with Chart.js
     const ctx = document.getElementById('powerChart').getContext('2d');
     new Chart(ctx, {
       type: 'line',
@@ -120,8 +158,8 @@
         datasets: [{
           label: '합산 전력 (mW)',
           data: [120, 145, 138, 160, 155, 175],
-          borderColor: '#3b82f6',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
           fill: true,
           tension: 0.4,
           borderWidth: 3
