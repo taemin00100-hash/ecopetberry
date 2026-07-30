@@ -20,12 +20,39 @@
         </div>
       </div>
       <div class="header-badges">
-        <div class="badge-mqtt">
-          <span class="dot"></span> MQTT
+        <div class="badge-mqtt" id="mqttBadge">
+          <span class="dot" id="mqttDot"></span> MQTT
         </div>
-        <div class="badge-version">v1.6.0</div>
+        <div class="badge-version">v2.0.0</div>
       </div>
     </header>
+
+    <!-- Live Sensor Status Grid -->
+    <div class="grid-3" style="margin-bottom:2rem;">
+      <!-- Weight / Dog Sensor -->
+      <div class="card sensor-card">
+        <div class="card-title">⚖️ 스마트 방석 로드셀</div>
+        <div class="sensor-big" id="weightVal">-- g</div>
+        <div class="sensor-badge" id="dogBadge">🔄 연결 중...</div>
+        <button class="ctrl-btn tare-btn" id="tareBtn" onclick="sendTare()">🎯 영점 초기화 (Tare)</button>
+      </div>
+
+      <!-- PIR Motion Sensor -->
+      <div class="card sensor-card">
+        <div class="card-title">🏃 PIR 모션 센서 (D6)</div>
+        <div class="sensor-big" id="pirVal">--</div>
+        <div class="sensor-badge" id="pirBadge">🔄 연결 중...</div>
+        <div class="sensor-sub" id="pirAnalysis" style="margin-top:0.5rem; font-size:0.8rem; color:#9aa0a6;">분석 중...</div>
+      </div>
+
+      <!-- Device Status -->
+      <div class="card sensor-card">
+        <div class="card-title">📡 ESP32 장치 상태</div>
+        <div class="sensor-big" id="deviceStatus" style="font-size:1.5rem;">🔄</div>
+        <div class="sensor-badge" id="statusBadge">연결 중...</div>
+        <div class="sensor-sub" style="margin-top:0.5rem; font-size:0.8rem; color:#9aa0a6;" id="lastUpdate">마지막 업데이트: --</div>
+      </div>
+    </div>
 
     <!-- Top Grid Layout -->
     <div class="grid-2">
@@ -41,8 +68,8 @@
           <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop" alt="Sleeping Pet Bed">
           <div class="cam-timestamp">
             CAM 01<br>
-            2023-10-27<br>
-            23:14:48
+            <span id="camDate">--</span><br>
+            <span id="camTime">--:--:--</span>
           </div>
           <div class="cam-live-tag">
             <span class="dot"></span> LIVE SMART PET BED MONITORING
@@ -61,11 +88,11 @@
           <div class="metric-label">
             ⚡ 스마트홈 제어 상태
           </div>
-          <div class="metric-val-yellow">
-            부재 중 (대기 모드)
+          <div id="homeStatusVal" class="metric-val-yellow">
+            연결 중...
           </div>
-          <div class="sub-desc-green">
-            ✓ 대기전력 보호 상태
+          <div id="homeStatusSub" class="sub-desc-green">
+            --
           </div>
         </div>
 
@@ -74,40 +101,51 @@
           <div class="metric-label">
             ⚖️ 스마트 방석 센서 상태
           </div>
-          <div class="metric-val-white">
-            미안착
+          <div id="cushionStatusVal" class="metric-val-white">
+            --
           </div>
-          <div class="sub-desc-gray">
-            ○ 반려견 침대 부재 상태
+          <div id="cushionStatusSub" class="sub-desc-gray">
+            --
           </div>
         </div>
 
-        <!-- Metric 3 -->
+        <!-- Metric 3: PIR -->
         <div class="metric-item">
           <div class="metric-label">
-            💰 이번 달 누적 절약 전기 요금
+            🏃 PIR 모션 감지 (최근 5초)
           </div>
-          <div class="metric-val-green">
-            ₩ 12,500
+          <div id="pirStatusVal" class="metric-val-white">
+            --
           </div>
-          <div class="sub-desc-green">
-            +₩ 1,200 (전일 대기전력 자동 차단 대비)
+          <div id="pirStatusSub" class="sub-desc-gray">
+            --
           </div>
         </div>
       </div>
     </div>
 
+    <!-- LCD Display Simulator -->
+    <div class="card" style="margin-bottom:2rem; margin-top:2rem;">
+      <div class="card-title">🖥️ 20×4 LCD 디스플레이 (실시간)</div>
+      <div class="lcd-screen">
+        <div class="lcd-line" id="lcdL1">Eco-Pet Smart Hub  </div>
+        <div class="lcd-line" id="lcdL2">Weight: -- g       </div>
+        <div class="lcd-line" id="lcdL3">Dog: ABSENT        </div>
+        <div class="lcd-line" id="lcdL4">PIR: CLEAR         </div>
+      </div>
+    </div>
+
     <!-- Power Consumption Chart Card -->
     <div class="card" style="margin-bottom: 2rem;">
-      <div class="card-title">🔌 실시간 가전 기기 전력 사용량 추이 (최근 5분)</div>
-      <div class="card-desc">방석의 안착 상태(수면 진입)에 따라 전체 전력 소비량을 모니터링합니다.</div>
+      <div class="card-title">🔌 실시간 무게 추이 (최근 30초)</div>
+      <div class="card-desc">로드셀 센서 실시간 무게 변화 모니터링</div>
       
       <div style="height:260px; width:100%;">
         <canvas id="powerChart"></canvas>
       </div>
 
       <div style="display:flex; justify-content:center; align-items:center; gap:0.5rem; margin-top:1rem; font-weight:700; font-size:0.95rem;">
-        <span style="color:#ef4444;">— ⚡ 실시간 총 합산 전력: <span style="color:#ef4444; font-weight:800;">21.24 mW</span></span>
+        <span style="color:#ef4444;">— ⚡ 현재 무게: <span id="currentWeightLabel" style="color:#ef4444; font-weight:800;">0.0 g</span></span>
       </div>
     </div>
 
@@ -116,51 +154,40 @@
       <div class="card-title">🎛️ 수동 장치 제어 (Manual Override)</div>
 
       <div class="override-grid">
-        <!-- Box 1 -->
-        <div class="override-box">
-          💡 거실 조명 켜기 (현재 OFF)
+        <!-- Tare Control -->
+        <div class="override-box" onclick="sendTare()" style="cursor:pointer;" id="tareBox">
+          🎯 로드셀 영점 초기화 (Tare)
         </div>
 
-        <!-- Box 2 -->
-        <div class="override-box">
-          📺 TV 공급 (현재 OFF)
+        <!-- LCD Backlight -->
+        <div class="override-box" onclick="toggleBacklight()" style="cursor:pointer;" id="backlightBox">
+          💡 LCD 백라이트 켜기/끄기
         </div>
 
-        <!-- Box 3: Yellow Border Highlighted Box -->
-        <div class="override-box-active">
-          🏕️ 블라인드 내리기 (현재 올림)
+        <!-- LCD Custom Text -->
+        <div class="override-box-active" onclick="sendCustomLCD()" style="cursor:pointer;">
+          ✏️ LCD 문구 변경하기
         </div>
 
-        <!-- Box 4: Aircon Control Container -->
-        <div class="aircon-container">
+        <!-- Status Refresh -->
+        <div class="aircon-container" onclick="fetchStatus()" style="cursor:pointer;">
           <div class="aircon-btn-top">
-            ❄️ 에어컨 켜기
+            🔄 상태 새로고침
           </div>
           <div class="aircon-subgrid">
-            <!-- Left Sub-Box: Current Temp -->
             <div class="aircon-subbox">
-              <div class="subbox-header">
-                현재 온도 <span style="color:#10b981;">● BMP280</span>
-              </div>
+              <div class="subbox-header">무게</div>
               <div class="subbox-content">
                 <div class="subbox-val-white">
-                  <span>🌡️</span> 26.6°C
+                  <span>⚖️</span> <span id="sideWeightVal">-- g</span>
                 </div>
               </div>
             </div>
-
-            <!-- Right Sub-Box: Target Temp -->
             <div class="aircon-subbox">
-              <div class="subbox-header">
-                희망 온도
-              </div>
+              <div class="subbox-header">PIR 모션</div>
               <div class="subbox-content">
-                <div class="subbox-val-cyan">
-                  <span>🎯</span> 23°C
-                </div>
-                <div class="arrow-stack">
-                  <span>▲</span>
-                  <span>▼</span>
+                <div class="subbox-val-cyan" id="sidePirVal">
+                  <span>🏃</span> --
                 </div>
               </div>
             </div>
@@ -169,12 +196,11 @@
       </div>
     </div>
 
-    <!-- Database Logs & Delete Management Panel matching Image 2 exactly -->
+    <!-- Database Logs & Delete Management Panel -->
     <div class="card">
-      <div class="card-title">🗄️ 데이터베이스 실시간 연동 로그</div>
-      <div class="card-desc" style="margin-bottom:1.5rem;">시스템 제어 내역 및 가상 IoT 디바이스 로그들이 Supabase 클라우드 데이터베이스에 즉각 누적 및 동기화됩니다.</div>
+      <div class="card-title">🗄️ 실시간 제어 이벤트 로그</div>
+      <div class="card-desc" style="margin-bottom:1.5rem;">ESP32 제어 명령 및 센서 이벤트 로그가 실시간으로 기록됩니다.</div>
       
-      <!-- Table matching Image 2 -->
       <div style="overflow-x:auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; margin-bottom: 1.5rem;">
         <table id="logsTable">
           <thead>
@@ -187,42 +213,17 @@
           </thead>
           <tbody id="logsTbody">
             <tr>
-              <td style="color:#9aa0a6;">2026-07-30 11:41:33</td>
-              <td style="font-weight:700; color:#fbd604;">에어컨</td>
-              <td style="color:#ffffff;">수동 제어</td>
-              <td style="color:#9aa0a6;">관리자가 에어컨 전원을 OFF(으)로 수동 전환함 (PWM: 0)</td>
-            </tr>
-            <tr>
-              <td style="color:#9aa0a6;">2026-07-30 11:41:18</td>
-              <td style="font-weight:700; color:#fbd604;">에어컨</td>
-              <td style="color:#ffffff;">수동 제어</td>
-              <td style="color:#9aa0a6;">관리자가 에어컨 전원을 ON(으)로 수동 전환함 (PWM: 149)</td>
-            </tr>
-            <tr>
-              <td style="color:#9aa0a6;">2026-07-30 11:41:13</td>
-              <td style="font-weight:700; color:#fbd604;">TV</td>
-              <td style="color:#ffffff;">수동 제어</td>
-              <td style="color:#9aa0a6;">관리자가 TV 전원을 OFF(으)로 수동 전환함</td>
-            </tr>
-            <tr>
-              <td style="color:#9aa0a6;">2026-07-30 11:41:08</td>
-              <td style="font-weight:700; color:#fbd604;">TV</td>
-              <td style="color:#ffffff;">수동 제어</td>
-              <td style="color:#9aa0a6;">관리자가 TV 전원을 ON(으)로 수동 전환함</td>
-            </tr>
-            <tr>
-              <td style="color:#9aa0a6;">2026-07-30 10:33:22</td>
-              <td style="font-weight:700; color:#fbd604;">시스템 메인</td>
-              <td style="color:#ffffff;">초기화</td>
-              <td style="color:#9aa0a6;">데이터베이스 모든 로그 수동 삭제 완료 (초기화)</td>
+              <td style="color:#9aa0a6;">--</td>
+              <td style="font-weight:700; color:#fbd604;">시스템</td>
+              <td style="color:#ffffff;">대기 중</td>
+              <td style="color:#9aa0a6;">ESP32 연결 대기 중...</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Developer Database Delete Management Panel matching Image 2 -->
       <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 1.25rem;">
-        <div style="color: #ef4444; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; display: flex; items-center; gap: 0.4rem;">
+        <div style="color: #ef4444; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem;">
           ▼ ⚠️ 데이터베이스 관리 메뉴 (개발자용)
         </div>
         <div>
@@ -231,10 +232,10 @@
             style="background: transparent; border: 1px solid #ef4444; color: #ef4444; padding: 0.75rem 1.25rem; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.2s ease;"
             onclick="clearLogs()"
           >
-            데이터베이스 로그 초기화 (Clear Logs Table)
+            이벤트 로그 초기화 (Clear Logs)
           </button>
           <div style="color: #9aa0a6; font-size: 0.82rem; margin-top: 0.6rem;">
-            클라우드 Supabase DB의 iot_logs 테이블 내용을 완전히 지우고 초기화합니다.
+            화면에 표시된 이벤트 로그를 초기화합니다.
           </div>
         </div>
       </div>
@@ -242,17 +243,27 @@
   </div>
 
   <script>
+    // ===========================
+    // 설정: 라즈베리파이 IP
+    // ===========================
+    const RPI_BASE = 'http://10.88.232.244:5000';
+    let backlightState = true;
+    let weightHistory = [];
+    let timeLabels = [];
+    let lastMotionState = null;
+
+    // Chart.js 실시간 무게 그래프
     const ctx = document.getElementById('powerChart').getContext('2d');
-    new Chart(ctx, {
+    const weightChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: ['17:19', '17:38', '17:56', '18:12', '18:28', '18:46', '19:04', '19:22', '19:41', '19:57', '20:15', '20:37', '20:51', '22:07', '26:25', '26:43', '27:03', '27:22', '27:40', '27:58', '28:16', '28:36', '29:22', '29:46', '30:02', '30:23', '30:43', '31:01', '31:19', '31:35', '31:51', '32:10', '37:44', '37:53'],
+        labels: timeLabels,
         datasets: [{
-          label: '실시간 총 합산 전력',
-          data: [21.5, 21.2, 21.6, 21.4, 21.3, 21.8, 21.6, 21.9, 21.5, 21.8, 21.7, 21.4, 21.3, 21.5, 21.2, 21.1, 20.8, 20.9, 21.4, 21.3, 21.5, 21.2, 21.5, 21.3, 21.6, 21.4, 21.8, 21.5, 21.9, 21.7, 21.4, 21.2, 21.3, 21.24],
+          label: '무게 (g)',
+          data: weightHistory,
           borderColor: '#ef4444',
-          backgroundColor: 'transparent',
-          fill: false,
+          backgroundColor: 'rgba(239,68,68,0.08)',
+          fill: true,
           tension: 0.3,
           borderWidth: 2,
           pointRadius: 0
@@ -261,37 +272,227 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: { duration: 300 },
         plugins: { legend: { display: false } },
         scales: {
-          x: { 
-            grid: { color: 'rgba(255,255,255,0.1)', borderDash: [4, 4] }, 
-            ticks: { color: '#9aa0a6', fontSize: 10 } 
-          },
-          y: { 
-            min: 0,
-            max: 24,
-            grid: { color: 'rgba(255,255,255,0.1)', borderDash: [4, 4] }, 
-            ticks: { color: '#9aa0a6', stepSize: 6 } 
-          }
+          x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9aa0a6', maxTicksLimit: 8 } },
+          y: { min: 0, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9aa0a6' } }
         }
       }
     });
 
+    // ===========================
+    // 실시간 상태 가져오기
+    // ===========================
+    async function fetchStatus() {
+      try {
+        const res = await fetch(`${RPI_BASE}/api/status`, { signal: AbortSignal.timeout(3000) });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        const d = json.data || {};
+        updateUI(d);
+        setMqttOnline(true);
+      } catch (e) {
+        setMqttOnline(false);
+        console.warn('API 오류:', e.message);
+      }
+    }
+
+    function updateUI(d) {
+      const weight = parseFloat(d.weight) || 0;
+      const dogPresent = d.dogPresent === true;
+      const motionDetected = d.motionDetected === true;
+      const pirAnalysis = d.pirAnalysis || 'No Motion Detected';
+      const status = d.deviceStatus || 'OFFLINE';
+      const l1 = d.lcd1Line1 || 'Eco-Pet Smart Hub';
+      const l2 = d.lcd1Line2 || 'Weight: -- g';
+      const l3 = d.lcd1Line3 || 'Dog: ABSENT';
+      const l4 = d.lcd1Line4 || 'PIR: CLEAR';
+
+      // 무게
+      document.getElementById('weightVal').textContent = weight.toFixed(1) + ' g';
+      document.getElementById('sideWeightVal').textContent = weight.toFixed(1) + ' g';
+      document.getElementById('currentWeightLabel').textContent = weight.toFixed(1) + ' g';
+
+      // 강아지 감지
+      const dogBadge = document.getElementById('dogBadge');
+      if (dogPresent) {
+        dogBadge.textContent = '🐶 강아지 착석 감지!';
+        dogBadge.style.background = 'rgba(16,185,129,0.2)';
+        dogBadge.style.color = '#10b981';
+        dogBadge.style.border = '1px solid #10b981';
+      } else {
+        dogBadge.textContent = '🏠 강아지 부재중';
+        dogBadge.style.background = 'rgba(255,255,255,0.05)';
+        dogBadge.style.color = '#9aa0a6';
+        dogBadge.style.border = '1px solid rgba(255,255,255,0.1)';
+      }
+
+      // PIR
+      const pirVal = document.getElementById('pirVal');
+      const pirBadge = document.getElementById('pirBadge');
+      const sidePir = document.getElementById('sidePirVal');
+      if (motionDetected) {
+        pirVal.textContent = '🏃 모션 감지!';
+        pirBadge.textContent = '⚡ ACTIVE';
+        pirBadge.style.background = 'rgba(251,214,4,0.15)';
+        pirBadge.style.color = '#fbd604';
+        pirBadge.style.border = '1px solid #fbd604';
+        sidePir.innerHTML = '<span>🏃</span> ACTIVE';
+        if (lastMotionState !== true) addLog('PIR 모션 센서', '모션 감지', '움직임이 감지되었습니다');
+      } else {
+        pirVal.textContent = '💤 조용함';
+        pirBadge.textContent = '✓ CLEAR';
+        pirBadge.style.background = 'rgba(255,255,255,0.05)';
+        pirBadge.style.color = '#9aa0a6';
+        pirBadge.style.border = '1px solid rgba(255,255,255,0.1)';
+        sidePir.innerHTML = '<span>💤</span> CLEAR';
+        if (lastMotionState === true) addLog('PIR 모션 센서', '모션 해제', '움직임이 사라졌습니다');
+      }
+      lastMotionState = motionDetected;
+      document.getElementById('pirAnalysis').textContent = pirAnalysis;
+      document.getElementById('pirStatusVal').textContent = motionDetected ? '⚡ 모션 감지 중' : '💤 조용함';
+      document.getElementById('pirStatusSub').textContent = pirAnalysis;
+
+      // 장치 상태
+      const deviceEl = document.getElementById('deviceStatus');
+      const statusBadge = document.getElementById('statusBadge');
+      if (status === 'ONLINE') {
+        deviceEl.textContent = '🟢';
+        statusBadge.textContent = '✓ ONLINE';
+        statusBadge.style.color = '#10b981';
+      } else {
+        deviceEl.textContent = '🔴';
+        statusBadge.textContent = '✗ OFFLINE';
+        statusBadge.style.color = '#ef4444';
+      }
+
+      // 홈 상태
+      document.getElementById('homeStatusVal').textContent = dogPresent ? '🐶 재실 (절전 해제)' : '🏠 부재 중 (대기 모드)';
+      document.getElementById('homeStatusSub').textContent = dogPresent ? '✓ 강아지 방석 위에 있음' : '✓ 대기전력 보호 상태';
+      document.getElementById('cushionStatusVal').textContent = dogPresent ? '안착' : '미안착';
+      document.getElementById('cushionStatusSub').textContent = dogPresent ? '● 반려견 방석 재실 감지' : '○ 반려견 방석 부재 상태';
+
+      // LCD
+      document.getElementById('lcdL1').textContent = l1.substring(0, 20).padEnd(20);
+      document.getElementById('lcdL2').textContent = l2.substring(0, 20).padEnd(20);
+      document.getElementById('lcdL3').textContent = l3.substring(0, 20).padEnd(20);
+      document.getElementById('lcdL4').textContent = l4.substring(0, 20).padEnd(20);
+
+      // 마지막 업데이트 시간
+      document.getElementById('lastUpdate').textContent = '마지막 업데이트: ' + new Date().toLocaleTimeString('ko-KR');
+
+      // 무게 그래프
+      const now = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      weightHistory.push(weight);
+      timeLabels.push(now);
+      if (weightHistory.length > 30) { weightHistory.shift(); timeLabels.shift(); }
+      weightChart.update('none');
+    }
+
+    function setMqttOnline(online) {
+      const dot = document.getElementById('mqttDot');
+      const badge = document.getElementById('mqttBadge');
+      dot.style.background = online ? '#10b981' : '#ef4444';
+      dot.style.boxShadow = online ? '0 0 6px #10b981' : '0 0 6px #ef4444';
+    }
+
+    // ===========================
+    // 제어 명령 전송
+    // ===========================
+    async function sendCommand(payload) {
+      try {
+        const res = await fetch(`${RPI_BASE}/api/control`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(3000)
+        });
+        return res.ok;
+      } catch (e) {
+        console.warn('명령 전송 실패:', e.message);
+        return false;
+      }
+    }
+
+    async function sendTare() {
+      const btn = document.getElementById('tareBtn');
+      btn.textContent = '⏳ 영점 조절 중...';
+      btn.disabled = true;
+      const ok = await sendCommand({ command: 'tare' });
+      btn.textContent = ok ? '✅ 영점 완료!' : '❌ 실패';
+      setTimeout(() => { btn.textContent = '🎯 영점 초기화 (Tare)'; btn.disabled = false; }, 2000);
+      if (ok) addLog('로드셀', '영점 초기화', '사용자가 Tare 명령을 전송했습니다');
+    }
+
+    async function toggleBacklight() {
+      backlightState = !backlightState;
+      const ok = await sendCommand({ command: 'lcd1_backlight', value: backlightState });
+      const box = document.getElementById('backlightBox');
+      box.textContent = '💡 LCD 백라이트 ' + (backlightState ? '켜기/끄기 (현재: ON)' : '켜기/끄기 (현재: OFF)');
+      if (ok) addLog('LCD', '백라이트 제어', `LCD 백라이트 ${backlightState ? 'ON' : 'OFF'}`);
+    }
+
+    async function sendCustomLCD() {
+      const line1 = prompt('LCD 1번 줄 (최대 20자):', 'Eco-Pet Smart Hub') || '';
+      const line2 = prompt('LCD 2번 줄 (최대 20자):', '안녕하세요!') || '';
+      const line3 = prompt('LCD 3번 줄 (최대 20자):', '') || '';
+      const line4 = prompt('LCD 4번 줄 (최대 20자):', '') || '';
+      const ok = await sendCommand({
+        command: 'lcd1_text',
+        value: { line1: line1.substring(0, 20), line2: line2.substring(0, 20), line3: line3.substring(0, 20), line4: line4.substring(0, 20) }
+      });
+      if (ok) addLog('LCD', '문구 변경', `"${line1}" 등으로 LCD 업데이트`);
+    }
+
+    // ===========================
+    // 이벤트 로그
+    // ===========================
+    function addLog(device, event, detail) {
+      const tbody = document.getElementById('logsTbody');
+      const nowStr = new Date().toLocaleString('ko-KR');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="color:#9aa0a6;">${nowStr}</td>
+        <td style="font-weight:700; color:#fbd604;">${device}</td>
+        <td style="color:#ffffff;">${event}</td>
+        <td style="color:#9aa0a6;">${detail}</td>
+      `;
+      tbody.insertBefore(tr, tbody.firstChild);
+      if (tbody.children.length > 20) tbody.removeChild(tbody.lastChild);
+    }
+
     function clearLogs() {
-      if (confirm('정말로 모든 데이터베이스 로그를 초기화하시겠습니까?')) {
+      if (confirm('이벤트 로그를 초기화하시겠습니까?')) {
         const tbody = document.getElementById('logsTbody');
-        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+        const nowStr = new Date().toLocaleString('ko-KR');
         tbody.innerHTML = `
           <tr>
             <td style="color:#9aa0a6;">${nowStr}</td>
             <td style="font-weight:700; color:#fbd604;">시스템 메인</td>
             <td style="color:#ffffff;">초기화</td>
-            <td style="color:#9aa0a6;">데이터베이스 모든 로그 수동 삭제 완료 (초기화)</td>
+            <td style="color:#9aa0a6;">로그 초기화 완료</td>
           </tr>
         `;
-        alert('데이터베이스 모든 로그가 초기화 되었습니다.');
       }
     }
+
+    // ===========================
+    // 실시간 시계
+    // ===========================
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('camDate').textContent = now.toLocaleDateString('ko-KR');
+      document.getElementById('camTime').textContent = now.toLocaleTimeString('ko-KR');
+    }
+
+    // ===========================
+    // 시작
+    // ===========================
+    fetchStatus();
+    setInterval(fetchStatus, 1500); // 1.5초마다 갱신
+    setInterval(updateClock, 1000);
+    updateClock();
   </script>
 </body>
 </html>

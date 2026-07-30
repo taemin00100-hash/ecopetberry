@@ -421,4 +421,110 @@ td {
 @media (max-width: 992px) {
   .grid-2 { grid-template-columns: 1fr; }
   .override-grid { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
 }
+
+/* Grid 3 columns */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+/* Sensor Card */
+.sensor-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.6rem;
+}
+
+.sensor-big {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -1px;
+}
+
+.sensor-badge {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #9aa0a6;
+  padding: 0.35rem 1rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.sensor-sub {
+  color: #9aa0a6;
+  font-size: 0.8rem;
+}
+
+/* Tare Button */
+.ctrl-btn {
+  margin-top: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.tare-btn {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #10b981;
+}
+
+.tare-btn:hover {
+  background: rgba(16, 185, 129, 0.3);
+  transform: translateY(-1px);
+}
+
+.tare-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* LCD Screen Simulator */
+.lcd-screen {
+  background: #0d1a0d;
+  border: 2px solid #1a4a1a;
+  border-radius: 10px;
+  padding: 1rem 1.5rem;
+  font-family: 'Courier New', monospace;
+  box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.05), 0 0 15px rgba(0, 200, 0, 0.1);
+  margin-top: 1rem;
+}
+
+.lcd-line {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #39ff14;
+  text-shadow: 0 0 8px rgba(57, 255, 20, 0.6);
+  letter-spacing: 0.05em;
+  line-height: 2;
+  white-space: pre;
+  overflow: hidden;
+}
+
+/* Override box hover for interactive ones */
+.override-box-active:hover {
+  background: rgba(251, 214, 4, 0.08);
+  cursor: pointer;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+.aircon-container:hover .aircon-btn-top {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.2);
+  transition: all 0.2s ease;
+}
+
