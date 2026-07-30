@@ -27,32 +27,7 @@
       </div>
     </header>
 
-    <!-- Real-time Live Sensor Cards (3-Grid) -->
-    <div class="grid-3" style="margin-bottom:2rem;">
-      <!-- Card 1: Weight / LoadCell Sensor -->
-      <div class="card sensor-card">
-        <div class="card-title">⚖️ 스마트 방석 로드셀</div>
-        <div class="sensor-big" id="weightVal">0.0 g</div>
-        <div class="sensor-badge" id="dogBadge">🏠 강아지 부재중</div>
-        <button class="ctrl-btn tare-btn" id="tareBtn" onclick="sendTare()">🎯 영점 초기화 (Tare)</button>
-      </div>
 
-      <!-- Card 2: PIR Motion Sensor (D6) -->
-      <div class="card sensor-card">
-        <div class="card-title">🏃 PIR 모션 센서 (D6)</div>
-        <div class="sensor-big" id="pirVal">💤 비감지</div>
-        <div class="sensor-badge" id="pirBadge">✓ CLEAR (1s 분석)</div>
-        <div class="sensor-sub" id="pirAnalysis" style="margin-top:0.5rem; font-size:0.8rem; color:#9aa0a6;">No Motion Detected</div>
-      </div>
-
-      <!-- Card 3: ESP32 Device Status -->
-      <div class="card sensor-card">
-        <div class="card-title">📡 ESP32 장치 상태</div>
-        <div class="sensor-big" id="deviceStatus" style="font-size:2rem;">🟢</div>
-        <div class="sensor-badge" id="statusBadge" style="color:#10b981;">✓ ONLINE</div>
-        <div class="sensor-sub" style="margin-top:0.5rem; font-size:0.8rem; color:#9aa0a6;" id="lastUpdate">마지막 업데이트: --</div>
-      </div>
-    </div>
 
     <!-- Main Layout (2-Grid) -->
     <div class="grid-2">
@@ -327,8 +302,8 @@
 
       // ─── 강아지 상태 판단 ───
       // 1) PIR 감지 -> ACTIVE (활동 중)
-      // 2) PIR 10초 미감지 & 무게 >= 200g -> SLEEPING (수면 중)
-      // 3) PIR 10초 미만 미감지 & 무게 >= 200g -> PRESENT (착석 중)
+      // 2) PIR 5초 미감지 & 무게 >= 200g -> SLEEPING (수면 중)
+      // 3) PIR 5초 미만 미감지 & 무게 >= 200g -> PRESENT (강아지 올라옴)
       // 4) 무게 < 80g & PIR 미감지 -> ABSENT (부재 중)
       let dogStatusStr = 'ABSENT';
       if (dogStateServer) {
@@ -337,7 +312,7 @@
         if (motionDetected) {
           dogStatusStr = 'ACTIVE';
         } else if (weight >= 200) {
-          if (now - lastMotionTimeWeb >= 10000) {
+          if (now - lastMotionTimeWeb >= 5000) { // 5초 이상 움직임 없음
             dogStatusStr = 'SLEEPING';
           } else {
             dogStatusStr = 'PRESENT';
@@ -347,68 +322,18 @@
         }
       }
 
-      // ─── 1. 전용 로드셀 카드 업데이트 ───
-      document.getElementById('weightVal').textContent = weight.toFixed(1) + ' g';
-      document.getElementById('weightValSmall').textContent = weight.toFixed(1) + ' g';
-      const dogBadge = document.getElementById('dogBadge');
-      if (dogStatusStr === 'ACTIVE') {
-        dogBadge.textContent = '🐕 강아지 활동 중!';
-        dogBadge.style.background = 'rgba(251,214,4,0.2)';
-        dogBadge.style.color = '#fbd604';
-        dogBadge.style.border = '1px solid #fbd604';
-      } else if (dogStatusStr === 'SLEEPING') {
-        dogBadge.textContent = '🐶💤 강아지 수면 중';
-        dogBadge.style.background = 'rgba(16,185,129,0.2)';
-        dogBadge.style.color = '#10b981';
-        dogBadge.style.border = '1px solid #10b981';
-      } else if (dogStatusStr === 'PRESENT') {
-        dogBadge.textContent = '🐶 방석 착석 중';
-        dogBadge.style.background = 'rgba(0,229,255,0.2)';
-        dogBadge.style.color = '#00e5ff';
-        dogBadge.style.border = '1px solid #00e5ff';
-      } else {
-        dogBadge.textContent = '🏠 강아지 부재중';
-        dogBadge.style.background = 'rgba(255,255,255,0.05)';
-        dogBadge.style.color = '#9aa0a6';
-        dogBadge.style.border = '1px solid rgba(255,255,255,0.1)';
-      }
+      // 안전하게 요소 업데이트 (상단 3개 카드 삭제 대비)
+      const weightValEl = document.getElementById('weightVal');
+      if (weightValEl) weightValEl.textContent = weight.toFixed(1) + ' g';
+      const weightValSmallEl = document.getElementById('weightValSmall');
+      if (weightValSmallEl) weightValSmallEl.textContent = weight.toFixed(1) + ' g';
 
-      // ─── 2. 전용 PIR 모션 센서 카드 업데이트 ───
-      const pirVal = document.getElementById('pirVal');
-      const pirBadge = document.getElementById('pirBadge');
-      const pirSmall = document.getElementById('pirValSmall');
-      if (motionDetected) {
-        pirVal.textContent = '🏃 감지됨!';
-        pirBadge.textContent = '⚡ ACTIVE (1s 분석)';
-        pirBadge.style.background = 'rgba(251,214,4,0.15)';
-        pirBadge.style.color = '#fbd604';
-        pirBadge.style.border = '1px solid #fbd604';
-        pirSmall.textContent = '🏃 감지';
-        pirSmall.style.color = '#fbd604';
-      } else {
-        pirVal.textContent = '💤 비감지';
-        pirBadge.textContent = '✓ CLEAR (1s 분석)';
-        pirBadge.style.background = 'rgba(255,255,255,0.05)';
-        pirBadge.style.color = '#9aa0a6';
-        pirBadge.style.border = '1px solid rgba(255,255,255,0.1)';
-        pirSmall.textContent = '💤 없음';
-        pirSmall.style.color = '#00e5ff';
-      }
-      document.getElementById('pirAnalysis').textContent = pirAnalysis;
-
-      // ─── 3. 전용 ESP32 장치 상태 카드 업데이트 ───
-      const devEl = document.getElementById('deviceStatus');
-      const statusBadge = document.getElementById('statusBadge');
-      if (devStatus === 'ONLINE') {
-        devEl.textContent = '🟢';
-        statusBadge.textContent = '✓ ONLINE';
-        statusBadge.style.color = '#10b981';
-      } else {
-        devEl.textContent = '🔴';
-        statusBadge.textContent = '✗ OFFLINE';
-        statusBadge.style.color = '#ef4444';
-      }
-      document.getElementById('lastUpdate').textContent = '마지막 업데이트: ' + new Date().toLocaleTimeString('ko-KR');
+      const pirValEl = document.getElementById('pirVal');
+      if (pirValEl) pirValEl.textContent = motionDetected ? '🏃 감지됨!' : '💤 비감지';
+      const pirSmallEl = document.getElementById('pirValSmall');
+      if (pirSmallEl) pirSmallEl.textContent = motionDetected ? '🏃 감지' : '💤 없음';
+      const pirAnalysisEl = document.getElementById('pirAnalysis');
+      if (pirAnalysisEl) pirAnalysisEl.textContent = pirAnalysis;
 
       // ─── 4. 홈 제어 상태 업데이트 ───
       const homeStatusEl  = document.getElementById('homeStatusVal');
@@ -421,12 +346,12 @@
       } else if (dogStatusStr === 'SLEEPING') {
         homeStatusEl.textContent = '강아지 수면 중 🐶💤';
         homeStatusEl.className   = 'metric-val-green';
-        homeStatusSub.textContent = '✓ 10초 이상 움직임 없음 + 방석 안착 (절전 모드)';
+        homeStatusSub.textContent = '✓ 5초 이상 움직임 없음 + 방석 안착 (절전 모드)';
         homeStatusSub.className   = 'sub-desc-green';
       } else if (dogStatusStr === 'PRESENT') {
-        homeStatusEl.textContent = '방석 착석 중 🐶';
+        homeStatusEl.textContent = '강아지 올라옴 🐶';
         homeStatusEl.className   = 'metric-val-white';
-        homeStatusSub.textContent = '● 방석 체중 감지 (10초 수면 대기 중)';
+        homeStatusSub.textContent = '● 방석 체중 200g 이상 감지 (5초 수면 대기 중)';
         homeStatusSub.className   = 'sub-desc-green';
       } else {
         homeStatusEl.textContent = '부재 중 (대기 모드 🏠)';
@@ -456,11 +381,15 @@
 
       if (dogStatusStr === 'SLEEPING') {
         cushionVal.textContent = '수면 안착 💤';
-        cushionSub.textContent = '● 반려견 수면 중 (무게: ' + weight.toFixed(1) + 'g)';
+        cushionSub.textContent = '● 5초 미감지 + 수면 중 (무게: ' + weight.toFixed(1) + 'g)';
         cushionSub.className   = 'sub-desc-green';
-      } else if (dogStatusStr === 'PRESENT' || dogStatusStr === 'ACTIVE') {
-        cushionVal.textContent = '안착 중 🐶';
-        cushionSub.textContent = '● 반려견 방석 재실 (무게: ' + weight.toFixed(1) + 'g)';
+      } else if (dogStatusStr === 'PRESENT') {
+        cushionVal.textContent = '강아지 올라옴 🐶';
+        cushionSub.textContent = '● 체중 200g 이상 안착 (무게: ' + weight.toFixed(1) + 'g)';
+        cushionSub.className   = 'sub-desc-green';
+      } else if (dogStatusStr === 'ACTIVE') {
+        cushionVal.textContent = '활동 감지 🏃';
+        cushionSub.textContent = '⚡ 모션 움직임 감지 중 (무게: ' + weight.toFixed(1) + 'g)';
         cushionSub.className   = 'sub-desc-green';
       } else {
         cushionVal.textContent = '미안착';
