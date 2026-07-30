@@ -97,7 +97,7 @@
       </div>
     </div>
 
-    <!-- Power Consumption Chart Card matching screenshot -->
+    <!-- Power Consumption Chart Card -->
     <div class="card" style="margin-bottom: 2rem;">
       <div class="card-title">🔌 실시간 가전 기기 전력 사용량 추이 (최근 5분)</div>
       <div class="card-desc">방석의 안착 상태(수면 진입)에 따라 전체 전력 소비량을 모니터링합니다.</div>
@@ -111,7 +111,7 @@
       </div>
     </div>
 
-    <!-- Manual Override Controls matching screenshot -->
+    <!-- Manual Override Controls matching Image 2 exactly -->
     <div class="card" style="margin-bottom: 2rem;">
       <div class="card-title">🎛️ 수동 장치 제어 (Manual Override)</div>
 
@@ -131,24 +131,37 @@
           🏕️ 블라인드 내리기 (현재 올림)
         </div>
 
-        <!-- Box 4: Aircon Control Container -->
+        <!-- Box 4: Aircon Control Container matching Image 2 -->
         <div class="aircon-container">
           <div class="aircon-btn-top">
             ❄️ 에어컨 켜기
           </div>
           <div class="aircon-subgrid">
+            <!-- Left Sub-Box: Current Temp -->
             <div class="aircon-subbox">
-              <div class="subbox-label">현재 온도 <span style="color:#10b981;">● BMP280</span></div>
-              <div class="subbox-val-pink">🌡️ 26.4°C</div>
-            </div>
-            <div class="aircon-subbox" style="flex:1.2; display:flex; justify-content:space-between; align-items:center;">
-              <div>
-                <div class="subbox-label">희망 온도</div>
-                <div class="subbox-val-cyan">🎯 23°C</div>
+              <div class="subbox-header">
+                현재 온도 <span style="color:#10b981;">● BMP280</span>
               </div>
-              <div style="display:flex; flex-direction:column; gap:2px; color:#64748b; font-size:0.7rem; cursor:pointer;">
-                <span>▲</span>
-                <span>▼</span>
+              <div class="subbox-content">
+                <div class="subbox-val-white">
+                  <span>🌡️</span> 26.6°C
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Sub-Box: Target Temp with Far Right Arrows -->
+            <div class="aircon-subbox">
+              <div class="subbox-header">
+                희망 온도
+              </div>
+              <div class="subbox-content">
+                <div class="subbox-val-cyan">
+                  <span>🎯</span> 23°C
+                </div>
+                <div class="arrow-stack">
+                  <span>▲</span>
+                  <span>▼</span>
+                </div>
               </div>
             </div>
           </div>
@@ -156,7 +169,7 @@
       </div>
     </div>
 
-    <!-- Database Logs Table Card matching screenshot -->
+    <!-- Database Logs Table Card -->
     <div class="card">
       <div class="card-title">🗄️ 데이터베이스 실시간 연동 로그</div>
       <div class="card-desc" style="margin-bottom:1rem;">시스템 제어 내역 및 가상 IoT 디바이스 로그들이 Supabase 클라우드 데이터베이스에 즉각 누적 및 동기화됩니다.</div>
@@ -182,7 +195,7 @@
               <td style="color:#64748b;">2026-07-30 20:15:12</td>
               <td style="font-weight:600;">BMP280 센서</td>
               <td><span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:700;">온도 측정</span></td>
-              <td style="color:#9aa0a6;">실내 쾌적 온도 26.4°C 정상 상태 측정 완료</td>
+              <td style="color:#9aa0a6;">실내 쾌적 온도 26.6°C 정상 상태 측정 완료</td>
             </tr>
           </tbody>
         </table>

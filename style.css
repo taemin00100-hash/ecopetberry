@@ -264,7 +264,7 @@ header {
   font-size: 0.85rem;
 }
 
-/* Manual Override Grid matching screenshot */
+/* Manual Override Grid */
 .override-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -310,62 +310,93 @@ header {
   box-shadow: 0 0 15px rgba(251, 214, 4, 0.15);
 }
 
+/* Air Conditioner Box Structure matching Image 2 */
 .aircon-container {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 0.8rem;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.5rem;
   min-height: 120px;
 }
 
 .aircon-btn-top {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
+  border-radius: 12px;
   color: #ffffff;
-  padding: 0.6rem;
+  padding: 0.65rem 1rem;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   text-align: center;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
 }
 
 .aircon-subgrid {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
 }
 
 .aircon-subbox {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 0.5rem;
-  flex: 1;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
+  min-height: 65px;
 }
 
-.subbox-label {
+.subbox-header {
   color: #9aa0a6;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
-.subbox-val-pink {
-  color: #f472b6;
+.subbox-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.2rem;
+}
+
+.subbox-val-white {
+  color: #ffffff;
   font-weight: 800;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 .subbox-val-cyan {
-  color: #38bdf8;
+  color: #00e5ff;
   font-weight: 800;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.arrow-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  color: #64748b;
+  font-size: 0.65rem;
+  cursor: pointer;
+}
+
+.arrow-stack span:hover {
+  color: #00e5ff;
 }
 
 table {
