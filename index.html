@@ -59,8 +59,8 @@
         <!-- Metric 1: 홈 제어 상태 -->
         <div class="metric-item">
           <div class="metric-label">⚡ 스마트홈 제어 상태</div>
-          <div id="homeStatusVal" class="metric-val-yellow">연결 중...</div>
-          <div id="homeStatusSub" class="sub-desc-green">--</div>
+          <div id="homeStatusVal" class="metric-val-yellow">상태 확인 중...</div>
+          <div id="homeStatusSub" class="sub-desc-green">동일한 Wi-Fi (junyeong) 연결 확인 필요</div>
         </div>
 
         <!-- Metric 2: 방석 센서 -->
@@ -199,7 +199,9 @@
     // ===========================
     // 설정
     // ===========================
-    const RPI_BASE = 'http://10.88.232.244:5000';
+    const RPI_BASE = window.location.origin.startsWith('http') && !window.location.origin.includes('vercel')
+      ? window.location.origin
+      : 'http://10.88.232.244:5000';
 
     // 장치 토글 상태
     let lightOn = false, tvOn = false, blindUp = false, acOn = false;
