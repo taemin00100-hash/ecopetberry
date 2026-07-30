@@ -16,18 +16,16 @@
           <span>🌱</span> Eco-Pet Care Smart Home IoT Dashboard
         </div>
         <div class="subtitle">
-          반려동물의 실시간 행동 상태(수면/활동/부재) 및 스마트 방석 착석 여부 감지 데이터를 분석하여 가전기기 대기전력을 자동으로 제어하는 스마트 홈 전력 최적화 솔루션입니다.
+          반려동물의 실시간 행동 상태(수면/활동/부재) 및 스마트 방석 안착 여부 감지 데이터를 분석하여 가전기기 대기전력을 자동으로 제어하는 스마트 홈 전력 최적화 솔루션입니다.
         </div>
       </div>
       <div class="header-badges">
         <div class="badge-mqtt" id="mqttBadge">
           <span class="dot" id="mqttDot"></span> MQTT
         </div>
-        <div class="badge-version">v2.1.0</div>
+        <div class="badge-version">v2.2.0</div>
       </div>
     </header>
-
-
 
     <!-- Main Layout (2-Grid) -->
     <div class="grid-2">
@@ -61,18 +59,18 @@
         <!-- Metric 1: 홈 제어 상태 -->
         <div class="metric-item">
           <div class="metric-label">⚡ 스마트홈 제어 상태</div>
-          <div id="homeStatusVal" class="metric-val-yellow">부재 중 (대기 모드)</div>
+          <div id="homeStatusVal" class="metric-val-yellow">부재 중 (대기 모드 🏠)</div>
           <div id="homeStatusSub" class="sub-desc-green">✓ 대기전력 보호 상태</div>
         </div>
 
-        <!-- Metric 2: 방석 센서 -->
+        <!-- Metric 2: 방석 센서 상태 -->
         <div class="metric-item">
           <div class="metric-label" style="display:flex; justify-content:space-between; align-items:center;">
             <span>⚖️ 스마트 방석 센서 상태</span>
             <span id="cushionPirTag" style="font-size:0.75rem; padding:2px 8px; border-radius:12px; background:rgba(255,255,255,0.06); color:#9aa0a6; border:1px solid rgba(255,255,255,0.1);">PIR: 감지 대기</span>
           </div>
-          <div id="cushionStatusVal" class="metric-val-white">미안착</div>
-          <div id="cushionStatusSub" class="sub-desc-gray">○ 반려견 부재 상태 (무게: 0.0g)</div>
+          <div id="cushionStatusVal" class="metric-val-white">미안착 🏠</div>
+          <div id="cushionStatusSub" class="sub-desc-gray">○ 반려견 침대 부재 상태 (무게: 0.0g)</div>
         </div>
 
         <!-- Metric 3: 절약 요금 -->
@@ -81,20 +79,6 @@
           <div class="metric-val-green" id="savingVal">₩ 12,500</div>
           <div class="sub-desc-green" id="savingSub">+₩ 50 (전일 대기전력 자동 차단 대비)</div>
         </div>
-      </div>
-    </div>
-
-    <!-- LCD Display Simulator Card -->
-    <div class="card" style="margin-bottom:2rem; margin-top:2rem;">
-      <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
-        <span>🖥️ 20×4 LCD 디스플레이 (실시간 동기화)</span>
-        <button onclick="sendCustomLCD()" style="background:rgba(0,229,255,0.1); border:1px solid rgba(0,229,255,0.3); color:#00e5ff; padding:4px 12px; border-radius:8px; font-weight:700; font-size:0.8rem; cursor:pointer;">✏️ 문구 변경</button>
-      </div>
-      <div class="lcd-screen">
-        <div class="lcd-line" id="lcdL1">Eco-Pet Smart Hub  </div>
-        <div class="lcd-line" id="lcdL2">Weight: 0.0 g       </div>
-        <div class="lcd-line" id="lcdL3">Dog: ABSENT 🏠      </div>
-        <div class="lcd-line" id="lcdL4">PIR: CLEAR 💤       </div>
       </div>
     </div>
 
@@ -216,10 +200,8 @@
     const TUNNEL_URL = 'https://quarters-contributing-yorkshire-halo.trycloudflare.com';
 
     let lightOn = false, tvOn = false, blindUp = false, acOn = false;
-    let backlightState = true;
     let totalSaved = 12500;
-    let lastDogState = null;
-    let lastMotionState = null;
+    let lastHomeStatus = null;
     let lastMotionTimeWeb = 0;
 
     let powerData = [];
@@ -288,79 +270,15 @@
       const weight          = parseFloat(d.weight) || 0;
       const motionDetected  = d.motionDetected === true;
       const devStatus       = d.deviceStatus || 'OFFLINE';
-      const pirAnalysis     = d.pirAnalysis || 'No Motion Detected';
-      const dogStateServer  = d.dogState || '';
-      const l1              = d.lcd1Line1 || 'Eco-Pet Smart Hub';
-      const l2              = d.lcd1Line2 || 'Weight: 0.0 g';
-      const l3              = d.lcd1Line3 || 'Dog: ABSENT';
-      const l4              = d.lcd1Line4 || 'PIR: CLEAR';
 
       const now = Date.now();
       if (motionDetected) {
         lastMotionTimeWeb = now;
       }
 
-      // ─── 강아지 상태 판단 ───
-      // 1) PIR 감지 -> ACTIVE (활동 중)
-      // 2) PIR 5초 미감지 & 무게 >= 200g -> SLEEPING (수면 중)
-      // 3) PIR 5초 미만 미감지 & 무게 >= 200g -> PRESENT (강아지 올라옴)
-      // 4) 무게 < 80g & PIR 미감지 -> ABSENT (부재 중)
-      let dogStatusStr = 'ABSENT';
-      if (dogStateServer) {
-        dogStatusStr = dogStateServer;
-      } else {
-        if (motionDetected) {
-          dogStatusStr = 'ACTIVE';
-        } else if (weight >= 200) {
-          if (now - lastMotionTimeWeb >= 5000) { // 5초 이상 움직임 없음
-            dogStatusStr = 'SLEEPING';
-          } else {
-            dogStatusStr = 'PRESENT';
-          }
-        } else if (weight < 80) {
-          dogStatusStr = 'ABSENT';
-        }
-      }
+      // ─── 1. 스마트 방석 안착 여부 (무게 200g 이상 = 강아지 안착) ───
+      const isSettled = (weight >= 200);
 
-      // 안전하게 요소 업데이트 (상단 3개 카드 삭제 대비)
-      const weightValEl = document.getElementById('weightVal');
-      if (weightValEl) weightValEl.textContent = weight.toFixed(1) + ' g';
-      const weightValSmallEl = document.getElementById('weightValSmall');
-      if (weightValSmallEl) weightValSmallEl.textContent = weight.toFixed(1) + ' g';
-
-      const pirValEl = document.getElementById('pirVal');
-      if (pirValEl) pirValEl.textContent = motionDetected ? '🏃 감지됨!' : '💤 비감지';
-      const pirSmallEl = document.getElementById('pirValSmall');
-      if (pirSmallEl) pirSmallEl.textContent = motionDetected ? '🏃 감지' : '💤 없음';
-      const pirAnalysisEl = document.getElementById('pirAnalysis');
-      if (pirAnalysisEl) pirAnalysisEl.textContent = pirAnalysis;
-
-      // ─── 4. 홈 제어 상태 업데이트 ───
-      const homeStatusEl  = document.getElementById('homeStatusVal');
-      const homeStatusSub = document.getElementById('homeStatusSub');
-      if (dogStatusStr === 'ACTIVE') {
-        homeStatusEl.textContent = '강아지 활동 중 🐕🏃';
-        homeStatusEl.className   = 'metric-val-yellow';
-        homeStatusSub.textContent = '⚡ PIR 움직임 감지 중 (절전 해제)';
-        homeStatusSub.className   = 'sub-desc-green';
-      } else if (dogStatusStr === 'SLEEPING') {
-        homeStatusEl.textContent = '강아지 수면 중 🐶💤';
-        homeStatusEl.className   = 'metric-val-green';
-        homeStatusSub.textContent = '✓ 5초 이상 움직임 없음 + 방석 안착 (절전 모드)';
-        homeStatusSub.className   = 'sub-desc-green';
-      } else if (dogStatusStr === 'PRESENT') {
-        homeStatusEl.textContent = '강아지 올라옴 🐶';
-        homeStatusEl.className   = 'metric-val-white';
-        homeStatusSub.textContent = '● 방석 체중 200g 이상 감지 (5초 수면 대기 중)';
-        homeStatusSub.className   = 'sub-desc-green';
-      } else {
-        homeStatusEl.textContent = '부재 중 (대기 모드 🏠)';
-        homeStatusEl.className   = 'metric-val-yellow';
-        homeStatusSub.textContent = '✓ 대기전력 보호 상태';
-        homeStatusSub.className   = 'sub-desc-green';
-      }
-
-      // ─── 5. 방석 센서 상태 업데이트 ───
       const cushionVal = document.getElementById('cushionStatusVal');
       const cushionSub = document.getElementById('cushionStatusSub');
       const cushionPirTag = document.getElementById('cushionPirTag');
@@ -379,39 +297,59 @@
         }
       }
 
-      if (dogStatusStr === 'SLEEPING') {
-        cushionVal.textContent = '수면 안착 💤';
-        cushionSub.textContent = '● 5초 미감지 + 수면 중 (무게: ' + weight.toFixed(1) + 'g)';
-        cushionSub.className   = 'sub-desc-green';
-      } else if (dogStatusStr === 'PRESENT') {
-        cushionVal.textContent = '강아지 올라옴 🐶';
+      if (isSettled) {
+        cushionVal.textContent = '강아지 안착 🐶';
         cushionSub.textContent = '● 체중 200g 이상 안착 (무게: ' + weight.toFixed(1) + 'g)';
         cushionSub.className   = 'sub-desc-green';
-      } else if (dogStatusStr === 'ACTIVE') {
-        cushionVal.textContent = '활동 감지 🏃';
-        cushionSub.textContent = '⚡ 모션 움직임 감지 중 (무게: ' + weight.toFixed(1) + 'g)';
-        cushionSub.className   = 'sub-desc-green';
       } else {
-        cushionVal.textContent = '미안착';
-        cushionSub.textContent = '○ 반려견 부재 상태 (무게: ' + weight.toFixed(1) + 'g)';
+        cushionVal.textContent = '미안착 🏠';
+        cushionSub.textContent = '○ 반려견 침대 부재 상태 (무게: ' + weight.toFixed(1) + 'g)';
         cushionSub.className   = 'sub-desc-gray';
       }
 
-      // ─── 6. 20×4 LCD 디스플레이 동기화 ───
-      document.getElementById('lcdL1').textContent = l1.substring(0, 20).padEnd(20);
-      document.getElementById('lcdL2').textContent = l2.substring(0, 20).padEnd(20);
-      document.getElementById('lcdL3').textContent = l3.substring(0, 20).padEnd(20);
-      document.getElementById('lcdL4').textContent = l4.substring(0, 20).padEnd(20);
+      // ─── 2. 스마트홈 제어 상태 판별 ───
+      // 조건 1: 강아지 안착(>=200g) + PIR 5초 이상 미감지 -> "강아지 수면 중 🐶💤"
+      // 조건 2: 그 외 (안착 중이거나 PIR 모션 감지) -> "강아지 활동 중 🐕🏃"
+      // 조건 3: 미안착 & 모션 없음 -> "부재 중 (대기 모드 🏠)"
+      const homeStatusEl  = document.getElementById('homeStatusVal');
+      const homeStatusSub = document.getElementById('homeStatusSub');
+      let currentHomeStatus = 'ABSENT';
 
-      // ─── 7. 절약 요금 및 로그 ───
-      if (lastDogState !== null && lastDogState !== dogStatusStr) {
-        addLog('스마트홈', '상태 변경: ' + dogStatusStr, `강아지 상태가 ${lastDogState} -> ${dogStatusStr} (무게 ${weight.toFixed(1)}g) 로 변경됨`);
+      if (isSettled && (now - lastMotionTimeWeb >= 5000) && !motionDetected) {
+        currentHomeStatus = 'SLEEPING';
+        homeStatusEl.textContent = '강아지 수면 중 🐶💤';
+        homeStatusEl.className   = 'metric-val-green';
+        homeStatusSub.textContent = '✓ 강아지 안착 + 5초 이상 미감지 (대기전력 자동 차단)';
+        homeStatusSub.className   = 'sub-desc-green';
+      } else if (isSettled || motionDetected) {
+        currentHomeStatus = 'ACTIVE';
+        homeStatusEl.textContent = '강아지 활동 중 🐕🏃';
+        homeStatusEl.className   = 'metric-val-yellow';
+        homeStatusSub.textContent = '⚡ 강아지 안착 중 또는 PIR 움직임 감지 (절전 해제)';
+        homeStatusSub.className   = 'sub-desc-green';
+      } else {
+        currentHomeStatus = 'ABSENT';
+        homeStatusEl.textContent = '부재 중 (대기 모드 🏠)';
+        homeStatusEl.className   = 'metric-val-yellow';
+        homeStatusSub.textContent = '✓ 대기전력 보호 상태';
+        homeStatusSub.className   = 'sub-desc-green';
       }
-      lastDogState = dogStatusStr;
 
-      // ─── 8. 전력 그래프 ───
+      // ─── 3. 서브 제어 컨트롤 표시 ───
+      const weightValSmallEl = document.getElementById('weightValSmall');
+      if (weightValSmallEl) weightValSmallEl.textContent = weight.toFixed(1) + ' g';
+      const pirSmallEl = document.getElementById('pirValSmall');
+      if (pirSmallEl) pirSmallEl.textContent = motionDetected ? '🏃 감지' : '💤 없음';
+
+      // ─── 4. 로그 및 절약 요금 ───
+      if (lastHomeStatus !== null && lastHomeStatus !== currentHomeStatus) {
+        addLog('스마트홈', '제어 상태 전환', `상태가 [${homeStatusEl.textContent}] (으)로 변경됨 (무게: ${weight.toFixed(1)}g)`);
+      }
+      lastHomeStatus = currentHomeStatus;
+
+      // ─── 5. 전력 그래프 ───
       const timeStr = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      const basePower = (dogStatusStr === 'SLEEPING' || dogStatusStr === 'ABSENT') ? 0.5 : 21.2;
+      const basePower = (currentHomeStatus === 'SLEEPING' || currentHomeStatus === 'ABSENT') ? 0.5 : 21.2;
       const power = +(basePower + (Math.random() * 0.6 - 0.3)).toFixed(2);
       powerData.push(power);
       timeLabels.push(timeStr);
@@ -452,33 +390,13 @@
 
     // 영점 초기화
     async function sendTare() {
-      const btn = document.getElementById('tareBtn');
-      btn.textContent = '⏳ 영점 조절 중...';
-      btn.disabled = true;
+      const box = document.getElementById('weightValSmall');
+      const prev = box.textContent;
+      box.textContent = '영점 중...';
       const ok = await sendCommand({ command: 'tare' });
-      btn.textContent = ok ? '✅ 영점 완료!' : '❌ 실패';
-      setTimeout(() => { btn.textContent = '🎯 영점 초기화 (Tare)'; btn.disabled = false; }, 2000);
+      box.textContent = ok ? '✅ 완료' : prev;
+      setTimeout(() => { if(box.textContent === '✅ 완료') box.textContent = '0.0 g'; }, 1500);
       if (ok) addLog('로드셀', '영점 초기화', '사용자가 Tare 명령 전송 완료');
-    }
-
-    // LCD 백라이트 토글
-    async function toggleBacklight() {
-      backlightState = !backlightState;
-      const ok = await sendCommand({ command: 'lcd1_backlight', value: backlightState });
-      if (ok) addLog('LCD', '백라이트 제어', `LCD 백라이트 ${backlightState ? 'ON' : 'OFF'}`);
-    }
-
-    // LCD 문구 변경
-    async function sendCustomLCD() {
-      const line1 = prompt('LCD 1번 줄 (최대 20자):', 'Eco-Pet Smart Hub') || '';
-      const line2 = prompt('LCD 2번 줄 (최대 20자):', 'Weight: 0.0 g') || '';
-      const line3 = prompt('LCD 3번 줄 (최대 20자):', 'Dog: PRESENT') || '';
-      const line4 = prompt('LCD 4번 줄 (최대 20자):', 'PIR: CLEAR') || '';
-      const ok = await sendCommand({
-        command: 'lcd1_text',
-        value: { line1: line1.substring(0, 20), line2: line2.substring(0, 20), line3: line3.substring(0, 20), line4: line4.substring(0, 20) }
-      });
-      if (ok) addLog('LCD', '문구 변경', `"${line1}" 등으로 LCD 업데이트 완료`);
     }
 
     // 수동 장치 제어
