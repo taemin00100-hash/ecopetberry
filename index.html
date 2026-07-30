@@ -9,7 +9,7 @@
 </head>
 <body>
   <div class="container">
-    <!-- Top Header Box matching screenshot -->
+    <!-- Top Header Box -->
     <header>
       <div>
         <div class="title">
@@ -27,7 +27,7 @@
       </div>
     </header>
 
-    <!-- Top Grid Layout: CCTV Monitoring Feed & Current IoT Status -->
+    <!-- Top Grid Layout -->
     <div class="grid-2">
       <!-- Left Card: CCTV Monitoring Feed -->
       <div class="card">
@@ -56,7 +56,7 @@
           📊 현재 스마트홈 IoT 상태
         </div>
 
-        <!-- Metric 1: Smart Home Control Status -->
+        <!-- Metric 1 -->
         <div class="metric-item">
           <div class="metric-label">
             ⚡ 스마트홈 제어 상태
@@ -69,7 +69,7 @@
           </div>
         </div>
 
-        <!-- Metric 2: Smart Cushion Sensor Status -->
+        <!-- Metric 2 -->
         <div class="metric-item">
           <div class="metric-label">
             ⚖️ 스마트 방석 센서 상태
@@ -82,7 +82,7 @@
           </div>
         </div>
 
-        <!-- Metric 3: Monthly Power Savings -->
+        <!-- Metric 3 -->
         <div class="metric-item">
           <div class="metric-label">
             💰 이번 달 누적 절약 전기 요금
@@ -97,30 +97,71 @@
       </div>
     </div>
 
-    <!-- Power Consumption Chart -->
+    <!-- Power Consumption Chart Card matching screenshot -->
     <div class="card" style="margin-bottom: 2rem;">
       <div class="card-title">🔌 실시간 가전 기기 전력 사용량 추이 (최근 5분)</div>
-      <p style="color:#9aa0a6; font-size:0.85rem; margin-bottom:1.5rem;">방석 안착 상태에 따른 실시간 합산 전력 소비량 모니터링입니다.</p>
-      <div style="height:280px; width:100%;">
+      <div class="card-desc">방석의 안착 상태(수면 진입)에 따라 전체 전력 소비량을 모니터링합니다.</div>
+      
+      <div style="height:260px; width:100%;">
         <canvas id="powerChart"></canvas>
       </div>
-    </div>
 
-    <!-- Appliance Controls -->
-    <div class="card" style="margin-bottom: 2rem;">
-      <div class="card-title">🎛️ 스마트홈 가전 기기 수동 제어</div>
-      <div class="btn-grid" style="margin-top:1rem;">
-        <button class="btn" style="border-color:#fbd604; color:#fbd604;">💡 거실 조명 (ON)</button>
-        <button class="btn">📺 TV (OFF)</button>
-        <button class="btn">⛺ 블라인드 (닫힘)</button>
-        <button class="btn" style="border-color:#10b981; color:#10b981;">❄️ 에어컨 24°C</button>
+      <div style="display:flex; justify-content:center; align-items:center; gap:0.5rem; margin-top:1rem; font-weight:700; font-size:0.95rem;">
+        <span style="color:#ef4444;">— ⚡ 실시간 총 합산 전력: <span style="color:#ef4444; font-weight:800;">21.24 mW</span></span>
       </div>
     </div>
 
-    <!-- Database Logs Table -->
+    <!-- Manual Override Controls matching screenshot -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <div class="card-title">🎛️ 수동 장치 제어 (Manual Override)</div>
+
+      <div class="override-grid">
+        <!-- Box 1 -->
+        <div class="override-box">
+          💡 거실 조명 켜기 (현재 OFF)
+        </div>
+
+        <!-- Box 2 -->
+        <div class="override-box">
+          📺 TV 공급 (현재 OFF)
+        </div>
+
+        <!-- Box 3: Yellow Border Highlighted Box -->
+        <div class="override-box-active">
+          🏕️ 블라인드 내리기 (현재 올림)
+        </div>
+
+        <!-- Box 4: Aircon Control Container -->
+        <div class="aircon-container">
+          <div class="aircon-btn-top">
+            ❄️ 에어컨 켜기
+          </div>
+          <div class="aircon-subgrid">
+            <div class="aircon-subbox">
+              <div class="subbox-label">현재 온도 <span style="color:#10b981;">● BMP280</span></div>
+              <div class="subbox-val-pink">🌡️ 26.4°C</div>
+            </div>
+            <div class="aircon-subbox" style="flex:1.2; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div class="subbox-label">희망 온도</div>
+                <div class="subbox-val-cyan">🎯 23°C</div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:2px; color:#64748b; font-size:0.7rem; cursor:pointer;">
+                <span>▲</span>
+                <span>▼</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Database Logs Table Card matching screenshot -->
     <div class="card">
       <div class="card-title">🗄️ 데이터베이스 실시간 연동 로그</div>
-      <div style="overflow-x:auto; margin-top:1rem;">
+      <div class="card-desc" style="margin-bottom:1rem;">시스템 제어 내역 및 가상 IoT 디바이스 로그들이 Supabase 클라우드 데이터베이스에 즉각 누적 및 동기화됩니다.</div>
+      
+      <div style="overflow-x:auto;">
         <table>
           <thead>
             <tr>
@@ -132,16 +173,16 @@
           </thead>
           <tbody>
             <tr>
-              <td style="color:#64748b;">2026-07-30 20:00:00</td>
+              <td style="color:#64748b;">2026-07-30 20:30:00</td>
               <td style="font-weight:600;">스마트 방석 센서</td>
               <td><span style="background:rgba(251,214,4,0.15); color:#fbd604; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:700;">미안착</span></td>
               <td style="color:#9aa0a6;">반려견 침대 부재 상태 감지 (대기전력 자동 차단 전환)</td>
             </tr>
             <tr>
-              <td style="color:#64748b;">2026-07-30 19:45:12</td>
+              <td style="color:#64748b;">2026-07-30 20:15:12</td>
               <td style="font-weight:600;">BMP280 센서</td>
               <td><span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:700;">온도 측정</span></td>
-              <td style="color:#9aa0a6;">실내 쾌적 온도 24.5°C 정상 상태 유지 중</td>
+              <td style="color:#9aa0a6;">실내 쾌적 온도 26.4°C 정상 상태 측정 완료</td>
             </tr>
           </tbody>
         </table>
@@ -154,15 +195,16 @@
     new Chart(ctx, {
       type: 'line',
       data: {
-        labels: ['10:00', '10:01', '10:02', '10:03', '10:04', '10:05'],
+        labels: ['17:19', '17:38', '17:56', '18:12', '18:28', '18:46', '19:04', '19:22', '19:41', '19:57', '20:15', '20:37', '20:51', '22:07', '26:25', '26:43', '27:03', '27:22', '27:40', '27:58', '28:16', '28:36', '29:22', '29:46', '30:02', '30:23', '30:43', '31:01', '31:19', '31:35', '31:51', '32:10', '37:44', '37:53'],
         datasets: [{
-          label: '합산 전력 (mW)',
-          data: [120, 145, 138, 160, 155, 175],
-          borderColor: '#10b981',
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          fill: true,
-          tension: 0.4,
-          borderWidth: 3
+          label: '실시간 총 합산 전력',
+          data: [21.5, 21.2, 21.6, 21.4, 21.3, 21.8, 21.6, 21.9, 21.5, 21.8, 21.7, 21.4, 21.3, 21.5, 21.2, 21.1, 20.8, 20.9, 21.4, 21.3, 21.5, 21.2, 21.5, 21.3, 21.6, 21.4, 21.8, 21.5, 21.9, 21.7, 21.4, 21.2, 21.3, 21.24],
+          borderColor: '#ef4444',
+          backgroundColor: 'transparent',
+          fill: false,
+          tension: 0.3,
+          borderWidth: 2,
+          pointRadius: 0
         }]
       },
       options: {
@@ -170,8 +212,16 @@
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9aa0a6' } },
-          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9aa0a6' } }
+          x: { 
+            grid: { color: 'rgba(255,255,255,0.1)', borderDash: [4, 4] }, 
+            ticks: { color: '#9aa0a6', fontSize: 10 } 
+          },
+          y: { 
+            min: 0,
+            max: 24,
+            grid: { color: 'rgba(255,255,255,0.1)', borderDash: [4, 4] }, 
+            ticks: { color: '#9aa0a6', stepSize: 6 } 
+          }
         }
       }
     });

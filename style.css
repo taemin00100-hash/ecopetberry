@@ -7,6 +7,7 @@
   --text-primary: #f5f6f8;
   --text-secondary: #9aa0a6;
   --accent-green: #10b981;
+  --accent-red: #ef4444;
   --accent-yellow: #fbd604;
   --font-family: 'Outfit', 'Noto Sans KR', sans-serif;
 }
@@ -123,11 +124,17 @@ header {
 .card-title {
   font-size: 1.3rem;
   font-weight: 700;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.4rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   color: #ffffff;
+}
+
+.card-desc {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  margin-bottom: 1.5rem;
 }
 
 /* Camera Card */
@@ -257,35 +264,108 @@ header {
   font-size: 0.85rem;
 }
 
-/* Button & Table Section */
-.btn-grid {
+/* Manual Override Grid matching screenshot */
+.override-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
+  margin-top: 1rem;
 }
 
-.btn {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--panel-border);
-  color: var(--text-primary);
-  padding: 1rem 1.2rem;
-  border-radius: 12px;
-  font-family: var(--font-family);
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.override-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 1.5rem 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #ffffff;
+  text-align: center;
+  min-height: 120px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.override-box:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.override-box-active {
+  background: rgba(255, 255, 255, 0.02);
+  border: 2px solid #fbd604;
+  border-radius: 14px;
+  padding: 1.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fbd604;
+  text-align: center;
+  min-height: 120px;
+  box-shadow: 0 0 15px rgba(251, 214, 4, 0.15);
+}
+
+.aircon-container {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 120px;
+}
+
+.aircon-btn-top {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: #ffffff;
+  padding: 0.6rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-align: center;
+  cursor: pointer;
+}
+
+.aircon-subgrid {
+  display: flex;
   gap: 0.5rem;
 }
 
-.btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: #10b981;
-  color: #10b981;
-  transform: translateY(-2px);
+.aircon-subbox {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 0.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.subbox-label {
+  color: #9aa0a6;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.subbox-val-pink {
+  color: #f472b6;
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.subbox-val-cyan {
+  color: #38bdf8;
+  font-weight: 800;
+  font-size: 1rem;
 }
 
 table {
@@ -309,5 +389,5 @@ td {
 
 @media (max-width: 992px) {
   .grid-2 { grid-template-columns: 1fr; }
-  .btn-grid { grid-template-columns: 1fr 1fr; }
+  .override-grid { grid-template-columns: 1fr 1fr; }
 }
