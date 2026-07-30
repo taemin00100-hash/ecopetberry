@@ -16,18 +16,45 @@
           <span>🌱</span> Eco-Pet Care Smart Home IoT Dashboard
         </div>
         <div class="subtitle">
-          반려동물의 실시간 행동 상태(수면/부재) 및 스마트 방석 착석 여부 감지 데이터를 분석하여 가전기기 대기전력을 자동으로 제어하는 스마트 홈 전력 최적화 솔루션입니다.
+          반려동물의 실시간 행동 상태(수면/활동/부재) 및 스마트 방석 착석 여부 감지 데이터를 분석하여 가전기기 대기전력을 자동으로 제어하는 스마트 홈 전력 최적화 솔루션입니다.
         </div>
       </div>
       <div class="header-badges">
         <div class="badge-mqtt" id="mqttBadge">
           <span class="dot" id="mqttDot"></span> MQTT
         </div>
-        <div class="badge-version">v1.8.0</div>
+        <div class="badge-version">v2.1.0</div>
       </div>
     </header>
 
-    <!-- Top Grid Layout -->
+    <!-- Real-time Live Sensor Cards (3-Grid) -->
+    <div class="grid-3" style="margin-bottom:2rem;">
+      <!-- Card 1: Weight / LoadCell Sensor -->
+      <div class="card sensor-card">
+        <div class="card-title">⚖️ 스마트 방석 로드셀</div>
+        <div class="sensor-big" id="weightVal">0.0 g</div>
+        <div class="sensor-badge" id="dogBadge">🏠 강아지 부재중</div>
+        <button class="ctrl-btn tare-btn" id="tareBtn" onclick="sendTare()">🎯 영점 초기화 (Tare)</button>
+      </div>
+
+      <!-- Card 2: PIR Motion Sensor (D6) -->
+      <div class="card sensor-card">
+        <div class="card-title">🏃 PIR 모션 센서 (D6)</div>
+        <div class="sensor-big" id="pirVal">💤 비감지</div>
+        <div class="sensor-badge" id="pirBadge">✓ CLEAR (1s 분석)</div>
+        <div class="sensor-sub" id="pirAnalysis" style="margin-top:0.5rem; font-size:0.8rem; color:#9aa0a6;">No Motion Detected</div>
+      </div>
+
+      <!-- Card 3: ESP32 Device Status -->
+      <div class="card sensor-card">
+        <div class="card-title">📡 ESP32 장치 상태</div>
+        <div class="sensor-big" id="deviceStatus" style="font-size:2rem;">🟢</div>
+        <div class="sensor-badge" id="statusBadge" style="color:#10b981;">✓ ONLINE</div>
+        <div class="sensor-sub" style="margin-top:0.5rem; font-size:0.8rem; color:#9aa0a6;" id="lastUpdate">마지막 업데이트: --</div>
+      </div>
+    </div>
+
+    <!-- Main Layout (2-Grid) -->
     <div class="grid-2">
       <!-- Left Card: CCTV Monitoring Feed -->
       <div class="card">
@@ -69,16 +96,30 @@
             <span>⚖️ 스마트 방석 센서 상태</span>
             <span id="cushionPirTag" style="font-size:0.75rem; padding:2px 8px; border-radius:12px; background:rgba(255,255,255,0.06); color:#9aa0a6; border:1px solid rgba(255,255,255,0.1);">PIR: 감지 대기</span>
           </div>
-          <div id="cushionStatusVal" class="metric-val-white">--</div>
-          <div id="cushionStatusSub" class="sub-desc-gray">--</div>
+          <div id="cushionStatusVal" class="metric-val-white">미안착</div>
+          <div id="cushionStatusSub" class="sub-desc-gray">○ 반려견 부재 상태 (무게: 0.0g)</div>
         </div>
 
         <!-- Metric 3: 절약 요금 -->
         <div class="metric-item">
           <div class="metric-label">💰 이번 달 누적 절약 전기 요금</div>
-          <div class="metric-val-green" id="savingVal">₩ --</div>
-          <div class="sub-desc-green" id="savingSub">--</div>
+          <div class="metric-val-green" id="savingVal">₩ 12,500</div>
+          <div class="sub-desc-green" id="savingSub">+₩ 50 (전일 대기전력 자동 차단 대비)</div>
         </div>
+      </div>
+    </div>
+
+    <!-- LCD Display Simulator Card -->
+    <div class="card" style="margin-bottom:2rem; margin-top:2rem;">
+      <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
+        <span>🖥️ 20×4 LCD 디스플레이 (실시간 동기화)</span>
+        <button onclick="sendCustomLCD()" style="background:rgba(0,229,255,0.1); border:1px solid rgba(0,229,255,0.3); color:#00e5ff; padding:4px 12px; border-radius:8px; font-weight:700; font-size:0.8rem; cursor:pointer;">✏️ 문구 변경</button>
+      </div>
+      <div class="lcd-screen">
+        <div class="lcd-line" id="lcdL1">Eco-Pet Smart Hub  </div>
+        <div class="lcd-line" id="lcdL2">Weight: 0.0 g       </div>
+        <div class="lcd-line" id="lcdL3">Dog: ABSENT 🏠      </div>
+        <div class="lcd-line" id="lcdL4">PIR: CLEAR 💤       </div>
       </div>
     </div>
 
@@ -125,11 +166,11 @@
             <!-- 무게 / 영점 -->
             <div class="aircon-subbox" onclick="sendTare()" style="cursor:pointer;" title="클릭하여 영점 초기화">
               <div class="subbox-header">
-                ⚖️ 무게 <span style="color:#ef4444; font-size:0.7rem;">[클릭=영점]</span>
+                ⚖️ 무게 <span style="color:#ef4444; font-size:0.7rem;">[영점]</span>
               </div>
               <div class="subbox-content">
                 <div class="subbox-val-white">
-                  <span id="weightValSmall">-- g</span>
+                  <span id="weightValSmall">0.0 g</span>
                 </div>
               </div>
             </div>
@@ -140,7 +181,7 @@
               </div>
               <div class="subbox-content">
                 <div class="subbox-val-cyan" id="pirValSmall">
-                  --
+                  💤 없음
                 </div>
               </div>
             </div>
@@ -167,9 +208,9 @@
           <tbody id="logsTbody">
             <tr>
               <td style="color:#9aa0a6;">--</td>
-              <td style="font-weight:700; color:#fbd604;">시스템</td>
+              <td style="font-weight:700; color:#fbd604;">시스템 메인</td>
               <td style="color:#ffffff;">대기 중</td>
-              <td style="color:#9aa0a6;">ESP32 연결 대기 중...</td>
+              <td style="color:#9aa0a6;">ESP32 센서 실시간 연동 준비 완료</td>
             </tr>
           </tbody>
         </table>
@@ -196,38 +237,20 @@
   </div>
 
   <script>
-    // ===========================
-    // 설정
-    // ===========================
-    const RPI_BASE = window.location.origin.startsWith('http') && !window.location.origin.includes('vercel')
-      ? window.location.origin
-      : 'http://10.88.232.244:5000';
+    // 🌐 발표 전용 Cloudflare HTTPS 보안 터널 (Vercel 100% 호환)
+    const TUNNEL_URL = 'https://quarters-contributing-yorkshire-halo.trycloudflare.com';
 
-    // 장치 토글 상태
     let lightOn = false, tvOn = false, blindUp = false, acOn = false;
     let backlightState = true;
-
-    // 절약 요금 계산용
-    let savedMinutes = 0;
-    let lastDogPresent = null;
+    let totalSaved = 12500;
+    let lastDogState = null;
     let lastMotionState = null;
-    let totalSaved = 12500; // 초기 누적값
+    let lastMotionTimeWeb = 0;
 
-    // 전력 차트 데이터
     let powerData = [];
     let timeLabels = [];
 
-    // ===========================
-    // 강아지 안착 판단 로직
-    // weight >= 200g AND PIR = false → 강아지 자고있음
-    // ===========================
-    function isDogSettled(weight, motionDetected) {
-      return weight >= 200 && !motionDetected;
-    }
-
-    // ===========================
-    // 전력 차트 초기화
-    // ===========================
+    // Chart.js 그래프
     const ctx = document.getElementById('powerChart').getContext('2d');
     const powerChart = new Chart(ctx, {
       type: 'line',
@@ -250,22 +273,11 @@
         animation: { duration: 200 },
         plugins: { legend: { display: false } },
         scales: {
-          x: {
-            grid: { color: 'rgba(255,255,255,0.1)', borderDash: [4, 4] },
-            ticks: { color: '#9aa0a6', fontSize: 10, maxTicksLimit: 10 }
-          },
-          y: {
-            min: 0,
-            max: 24,
-            grid: { color: 'rgba(255,255,255,0.1)', borderDash: [4, 4] },
-            ticks: { color: '#9aa0a6', stepSize: 6 }
-          }
+          x: { grid: { color: 'rgba(255,255,255,0.1)', borderDash: [4, 4] }, ticks: { color: '#9aa0a6', fontSize: 10, maxTicksLimit: 10 } },
+          y: { min: 0, max: 24, grid: { color: 'rgba(255,255,255,0.1)', borderDash: [4, 4] }, ticks: { color: '#9aa0a6', stepSize: 6 } }
         }
       }
     });
-
-    // 🌐 발표 전용 Cloudflare HTTPS 보안 터널 (Vercel 100% 호환)
-    const TUNNEL_URL = 'https://quarters-contributing-yorkshire-halo.trycloudflare.com';
 
     async function fetchStatus() {
       // 1. Cloudflare HTTPS 터널 호출
@@ -297,14 +309,16 @@
       setMqttOnline(false);
     }
 
-    let lastMotionTimeWeb = 0;
-
     function updateUI(d) {
       const weight          = parseFloat(d.weight) || 0;
       const motionDetected  = d.motionDetected === true;
       const devStatus       = d.deviceStatus || 'OFFLINE';
-      const pirAnalysis     = d.pirAnalysis || '';
+      const pirAnalysis     = d.pirAnalysis || 'No Motion Detected';
       const dogStateServer  = d.dogState || '';
+      const l1              = d.lcd1Line1 || 'Eco-Pet Smart Hub';
+      const l2              = d.lcd1Line2 || 'Weight: 0.0 g';
+      const l3              = d.lcd1Line3 || 'Dog: ABSENT';
+      const l4              = d.lcd1Line4 || 'PIR: CLEAR';
 
       const now = Date.now();
       if (motionDetected) {
@@ -312,11 +326,11 @@
       }
 
       // ─── 강아지 상태 판단 ───
-      // 1) PIR 감지 -> 활동 중 (로드셀 무관)
-      // 2) PIR 10초 미감지 & 무게 >= 200g -> 수면 중
-      // 3) PIR 10초 미만 미감지 & 무게 >= 200g -> 착석 중
-      // 4) 무게 < 80g & PIR 미감지 -> 부재 중
-      let dogStatusStr = 'ABSENT'; // 'ACTIVE', 'SLEEPING', 'PRESENT', 'ABSENT'
+      // 1) PIR 감지 -> ACTIVE (활동 중)
+      // 2) PIR 10초 미감지 & 무게 >= 200g -> SLEEPING (수면 중)
+      // 3) PIR 10초 미만 미감지 & 무게 >= 200g -> PRESENT (착석 중)
+      // 4) 무게 < 80g & PIR 미감지 -> ABSENT (부재 중)
+      let dogStatusStr = 'ABSENT';
       if (dogStateServer) {
         dogStatusStr = dogStateServer;
       } else {
@@ -333,7 +347,70 @@
         }
       }
 
-      // ─── 홈 제어 상태 ───
+      // ─── 1. 전용 로드셀 카드 업데이트 ───
+      document.getElementById('weightVal').textContent = weight.toFixed(1) + ' g';
+      document.getElementById('weightValSmall').textContent = weight.toFixed(1) + ' g';
+      const dogBadge = document.getElementById('dogBadge');
+      if (dogStatusStr === 'ACTIVE') {
+        dogBadge.textContent = '🐕 강아지 활동 중!';
+        dogBadge.style.background = 'rgba(251,214,4,0.2)';
+        dogBadge.style.color = '#fbd604';
+        dogBadge.style.border = '1px solid #fbd604';
+      } else if (dogStatusStr === 'SLEEPING') {
+        dogBadge.textContent = '🐶💤 강아지 수면 중';
+        dogBadge.style.background = 'rgba(16,185,129,0.2)';
+        dogBadge.style.color = '#10b981';
+        dogBadge.style.border = '1px solid #10b981';
+      } else if (dogStatusStr === 'PRESENT') {
+        dogBadge.textContent = '🐶 방석 착석 중';
+        dogBadge.style.background = 'rgba(0,229,255,0.2)';
+        dogBadge.style.color = '#00e5ff';
+        dogBadge.style.border = '1px solid #00e5ff';
+      } else {
+        dogBadge.textContent = '🏠 강아지 부재중';
+        dogBadge.style.background = 'rgba(255,255,255,0.05)';
+        dogBadge.style.color = '#9aa0a6';
+        dogBadge.style.border = '1px solid rgba(255,255,255,0.1)';
+      }
+
+      // ─── 2. 전용 PIR 모션 센서 카드 업데이트 ───
+      const pirVal = document.getElementById('pirVal');
+      const pirBadge = document.getElementById('pirBadge');
+      const pirSmall = document.getElementById('pirValSmall');
+      if (motionDetected) {
+        pirVal.textContent = '🏃 감지됨!';
+        pirBadge.textContent = '⚡ ACTIVE (1s 분석)';
+        pirBadge.style.background = 'rgba(251,214,4,0.15)';
+        pirBadge.style.color = '#fbd604';
+        pirBadge.style.border = '1px solid #fbd604';
+        pirSmall.textContent = '🏃 감지';
+        pirSmall.style.color = '#fbd604';
+      } else {
+        pirVal.textContent = '💤 비감지';
+        pirBadge.textContent = '✓ CLEAR (1s 분석)';
+        pirBadge.style.background = 'rgba(255,255,255,0.05)';
+        pirBadge.style.color = '#9aa0a6';
+        pirBadge.style.border = '1px solid rgba(255,255,255,0.1)';
+        pirSmall.textContent = '💤 없음';
+        pirSmall.style.color = '#00e5ff';
+      }
+      document.getElementById('pirAnalysis').textContent = pirAnalysis;
+
+      // ─── 3. 전용 ESP32 장치 상태 카드 업데이트 ───
+      const devEl = document.getElementById('deviceStatus');
+      const statusBadge = document.getElementById('statusBadge');
+      if (devStatus === 'ONLINE') {
+        devEl.textContent = '🟢';
+        statusBadge.textContent = '✓ ONLINE';
+        statusBadge.style.color = '#10b981';
+      } else {
+        devEl.textContent = '🔴';
+        statusBadge.textContent = '✗ OFFLINE';
+        statusBadge.style.color = '#ef4444';
+      }
+      document.getElementById('lastUpdate').textContent = '마지막 업데이트: ' + new Date().toLocaleTimeString('ko-KR');
+
+      // ─── 4. 홈 제어 상태 업데이트 ───
       const homeStatusEl  = document.getElementById('homeStatusVal');
       const homeStatusSub = document.getElementById('homeStatusSub');
       if (dogStatusStr === 'ACTIVE') {
@@ -358,7 +435,7 @@
         homeStatusSub.className   = 'sub-desc-green';
       }
 
-      // ─── 방석 센서 상태 ───
+      // ─── 5. 방석 센서 상태 업데이트 ───
       const cushionVal = document.getElementById('cushionStatusVal');
       const cushionSub = document.getElementById('cushionStatusSub');
       const cushionPirTag = document.getElementById('cushionPirTag');
@@ -391,44 +468,24 @@
         cushionSub.className   = 'sub-desc-gray';
       }
 
-      // ─── 절약 요금 업데이트 ───
-      if (lastDogPresent !== null && lastDogPresent !== dogSettled) {
-        if (!dogSettled) {
-          totalSaved += 50; // 대기모드 전환 시 절약 누적
-        }
-        addLog('스마트홈', dogSettled ? '강아지 안착' : '강아지 이석', dogSettled ? `무게 ${weight.toFixed(1)}g 감지 + PIR 미감지 → 재실 확인` : `방석 비어있음 → 대기모드 전환`);
+      // ─── 6. 20×4 LCD 디스플레이 동기화 ───
+      document.getElementById('lcdL1').textContent = l1.substring(0, 20).padEnd(20);
+      document.getElementById('lcdL2').textContent = l2.substring(0, 20).padEnd(20);
+      document.getElementById('lcdL3').textContent = l3.substring(0, 20).padEnd(20);
+      document.getElementById('lcdL4').textContent = l4.substring(0, 20).padEnd(20);
+
+      // ─── 7. 절약 요금 및 로그 ───
+      if (lastDogState !== null && lastDogState !== dogStatusStr) {
+        addLog('스마트홈', '상태 변경: ' + dogStatusStr, `강아지 상태가 ${lastDogState} -> ${dogStatusStr} (무게 ${weight.toFixed(1)}g) 로 변경됨`);
       }
-      lastDogPresent = dogSettled;
-      document.getElementById('savingVal').textContent = '₩ ' + totalSaved.toLocaleString();
-      document.getElementById('savingSub').textContent = '+₩ 50 (전일 대기전력 자동 차단 대비)';
+      lastDogState = dogStatusStr;
 
-      // ─── 무게 / PIR 소형 표시 ───
-      document.getElementById('weightValSmall').textContent = weight.toFixed(1) + ' g';
-      const pirSmall = document.getElementById('pirValSmall');
-      if (motionDetected) {
-        pirSmall.textContent = '🏃 감지';
-        pirSmall.style.color = '#fbd604';
-      } else {
-        pirSmall.textContent = '💤 없음';
-        pirSmall.style.color = '#00e5ff';
-      }
-
-      // PIR 변화 로그
-      if (lastMotionState !== null && lastMotionState !== motionDetected) {
-        addLog('PIR 모션 센서', motionDetected ? '모션 감지' : '모션 해제',
-          motionDetected ? '움직임 감지 → 강아지 활동 중' : `움직임 없음 (무게: ${weight.toFixed(1)}g)`);
-      }
-      lastMotionState = motionDetected;
-
-      // ─── MQTT 배지 상태 ───
-      setMqttOnline(devStatus === 'ONLINE');
-
-      // ─── 전력 차트 (강아지 안착 시 전력 낮게) ───
-      const now = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      const basePower = dogSettled ? 0.5 : 21.2;
+      // ─── 8. 전력 그래프 ───
+      const timeStr = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const basePower = (dogStatusStr === 'SLEEPING' || dogStatusStr === 'ABSENT') ? 0.5 : 21.2;
       const power = +(basePower + (Math.random() * 0.6 - 0.3)).toFixed(2);
       powerData.push(power);
-      timeLabels.push(now);
+      timeLabels.push(timeStr);
       if (powerData.length > 60) { powerData.shift(); timeLabels.shift(); }
       powerChart.update('none');
       document.getElementById('powerLabel').textContent = power.toFixed(2) + ' mW';
@@ -453,10 +510,7 @@
         }).catch(() => null);
 
         if (!res || !res.ok) {
-          const fallback = window.location.origin.startsWith('http') && !window.location.origin.includes('vercel')
-            ? window.location.origin
-            : 'http://10.88.232.244:5000';
-          res = await fetch(`${fallback}/api/control`, {
+          res = await fetch('/api/control', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
@@ -469,16 +523,36 @@
 
     // 영점 초기화
     async function sendTare() {
-      const box = document.getElementById('weightValSmall');
-      const prev = box.textContent;
-      box.textContent = '영점 중...';
+      const btn = document.getElementById('tareBtn');
+      btn.textContent = '⏳ 영점 조절 중...';
+      btn.disabled = true;
       const ok = await sendCommand({ command: 'tare' });
-      box.textContent = ok ? '✅ 완료' : prev;
-      setTimeout(() => { if(box.textContent === '✅ 완료') box.textContent = '0.0 g'; }, 1500);
+      btn.textContent = ok ? '✅ 영점 완료!' : '❌ 실패';
+      setTimeout(() => { btn.textContent = '🎯 영점 초기화 (Tare)'; btn.disabled = false; }, 2000);
       if (ok) addLog('로드셀', '영점 초기화', '사용자가 Tare 명령 전송 완료');
     }
 
-    // 거실 조명
+    // LCD 백라이트 토글
+    async function toggleBacklight() {
+      backlightState = !backlightState;
+      const ok = await sendCommand({ command: 'lcd1_backlight', value: backlightState });
+      if (ok) addLog('LCD', '백라이트 제어', `LCD 백라이트 ${backlightState ? 'ON' : 'OFF'}`);
+    }
+
+    // LCD 문구 변경
+    async function sendCustomLCD() {
+      const line1 = prompt('LCD 1번 줄 (최대 20자):', 'Eco-Pet Smart Hub') || '';
+      const line2 = prompt('LCD 2번 줄 (최대 20자):', 'Weight: 0.0 g') || '';
+      const line3 = prompt('LCD 3번 줄 (최대 20자):', 'Dog: PRESENT') || '';
+      const line4 = prompt('LCD 4번 줄 (최대 20자):', 'PIR: CLEAR') || '';
+      const ok = await sendCommand({
+        command: 'lcd1_text',
+        value: { line1: line1.substring(0, 20), line2: line2.substring(0, 20), line3: line3.substring(0, 20), line4: line4.substring(0, 20) }
+      });
+      if (ok) addLog('LCD', '문구 변경', `"${line1}" 등으로 LCD 업데이트 완료`);
+    }
+
+    // 수동 장치 제어
     function toggleLight() {
       lightOn = !lightOn;
       const box = document.getElementById('lightBox');
@@ -488,7 +562,6 @@
       addLog('거실 조명', '수동 제어', `관리자가 거실 조명을 ${lightOn ? 'ON' : 'OFF'}(으)로 수동 전환함`);
     }
 
-    // TV
     function toggleTV() {
       tvOn = !tvOn;
       const box = document.getElementById('tvBox');
@@ -498,7 +571,6 @@
       addLog('TV', '수동 제어', `관리자가 TV 전원을 ${tvOn ? 'ON' : 'OFF'}(으)로 수동 전환함`);
     }
 
-    // 블라인드
     function toggleBlind() {
       blindUp = !blindUp;
       const box = document.getElementById('blindBox');
@@ -506,7 +578,6 @@
       addLog('블라인드', '수동 제어', `관리자가 블라인드를 ${blindUp ? '올림' : '내림'}(으)로 수동 전환함`);
     }
 
-    // 에어컨
     function toggleAC() {
       acOn = !acOn;
       const btn = document.getElementById('acBtn');
@@ -514,9 +585,7 @@
       addLog('에어컨', '수동 제어', `관리자가 에어컨 전원을 ${acOn ? 'ON' : 'OFF'}(으)로 수동 전환함 (PWM: ${acOn ? 149 : 0})`);
     }
 
-    // ===========================
     // 이벤트 로그
-    // ===========================
     function addLog(device, event, detail) {
       const tbody = document.getElementById('logsTbody');
       const nowStr = new Date().toLocaleString('ko-KR').replace(/\./g, '-').replace(/ /g, ' ').substring(0, 19);
@@ -547,18 +616,12 @@
       }
     }
 
-    // ===========================
-    // 실시간 시계
-    // ===========================
     function updateClock() {
       const now = new Date();
       document.getElementById('camDate').textContent = now.toLocaleDateString('ko-KR');
       document.getElementById('camTime').textContent = now.toLocaleTimeString('ko-KR');
     }
 
-    // ===========================
-    // 시작
-    // ===========================
     fetchStatus();
     setInterval(fetchStatus, 1500);
     setInterval(updateClock, 1000);
