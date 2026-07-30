@@ -65,7 +65,10 @@
 
         <!-- Metric 2: 방석 센서 -->
         <div class="metric-item">
-          <div class="metric-label">⚖️ 스마트 방석 센서 상태</div>
+          <div class="metric-label" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>⚖️ 스마트 방석 센서 상태</span>
+            <span id="cushionPirTag" style="font-size:0.75rem; padding:2px 8px; border-radius:12px; background:rgba(255,255,255,0.06); color:#9aa0a6; border:1px solid rgba(255,255,255,0.1);">PIR: 감지 대기</span>
+          </div>
           <div id="cushionStatusVal" class="metric-val-white">--</div>
           <div id="cushionStatusSub" class="sub-desc-gray">--</div>
         </div>
@@ -301,13 +304,29 @@
       // ─── 방석 센서 상태 ───
       const cushionVal = document.getElementById('cushionStatusVal');
       const cushionSub = document.getElementById('cushionStatusSub');
+      const cushionPirTag = document.getElementById('cushionPirTag');
+
+      if (cushionPirTag) {
+        if (motionDetected) {
+          cushionPirTag.textContent = '🏃 PIR: 감지됨';
+          cushionPirTag.style.color = '#fbd604';
+          cushionPirTag.style.borderColor = 'rgba(251,214,4,0.4)';
+          cushionPirTag.style.background = 'rgba(251,214,4,0.15)';
+        } else {
+          cushionPirTag.textContent = '💤 PIR: 비감지';
+          cushionPirTag.style.color = '#10b981';
+          cushionPirTag.style.borderColor = 'rgba(16,185,129,0.3)';
+          cushionPirTag.style.background = 'rgba(16,185,129,0.1)';
+        }
+      }
+
       if (dogSettled) {
         cushionVal.textContent = '안착';
-        cushionSub.textContent = '● 반려견 방석 수면 감지';
+        cushionSub.textContent = '● 반려견 방석 수면 감지 (무게: ' + weight.toFixed(1) + 'g)';
         cushionSub.className   = 'sub-desc-green';
       } else {
         cushionVal.textContent = '미안착';
-        cushionSub.textContent = '○ 반려견 방석 부재 상태';
+        cushionSub.textContent = '○ 반려견 방석 부재 상태 (무게: ' + weight.toFixed(1) + 'g)';
         cushionSub.className   = 'sub-desc-gray';
       }
 
