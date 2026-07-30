@@ -122,14 +122,14 @@
             ❄️ 에어컨 켜기
           </div>
           <div class="aircon-subgrid">
-            <!-- 무게 / 영점 -->
-            <div class="aircon-subbox" onclick="sendTare()" style="cursor:pointer;" title="클릭하여 영점 초기화">
+            <!-- BMP280 온도 센서 -->
+            <div class="aircon-subbox">
               <div class="subbox-header">
-                ⚖️ 무게 <span style="color:#ef4444; font-size:0.7rem;">[영점]</span>
+                🌡️ BMP280 온도
               </div>
               <div class="subbox-content">
                 <div class="subbox-val-white">
-                  <span id="weightValSmall">0.0 g</span>
+                  <span id="tempValSmall">-- °C</span>
                 </div>
               </div>
             </div>
@@ -335,9 +335,20 @@
         homeStatusSub.className   = 'sub-desc-green';
       }
 
-      // ─── 3. 서브 제어 컨트롤 표시 ───
-      const weightValSmallEl = document.getElementById('weightValSmall');
-      if (weightValSmallEl) weightValSmallEl.textContent = weight.toFixed(1) + ' g';
+      // ─── 3. 서브 제어 컨트롤 표시 (BMP280 온도 & PIR) ───
+      const tempValSmallEl = document.getElementById('tempValSmall');
+      if (tempValSmallEl) {
+        const rawTemp = (d.temp !== undefined && d.temp !== null) ? d.temp :
+                        (d.temperature !== undefined && d.temperature !== null) ? d.temperature :
+                        (d.bmp280_temp !== undefined && d.bmp280_temp !== null) ? d.bmp280_temp :
+                        (d.tempC !== undefined && d.tempC !== null) ? d.tempC : null;
+        if (rawTemp !== null) {
+          const tempNum = parseFloat(rawTemp);
+          tempValSmallEl.textContent = !isNaN(tempNum) ? tempNum.toFixed(1) + ' °C' : rawTemp + ' °C';
+        } else {
+          tempValSmallEl.textContent = '-- °C';
+        }
+      }
       const pirSmallEl = document.getElementById('pirValSmall');
       if (pirSmallEl) pirSmallEl.textContent = motionDetected ? '🏃 감지' : '💤 없음';
 
@@ -388,16 +399,6 @@
       } catch(e) { return false; }
     }
 
-    // 영점 초기화
-    async function sendTare() {
-      const box = document.getElementById('weightValSmall');
-      const prev = box.textContent;
-      box.textContent = '영점 중...';
-      const ok = await sendCommand({ command: 'tare' });
-      box.textContent = ok ? '✅ 완료' : prev;
-      setTimeout(() => { if(box.textContent === '✅ 완료') box.textContent = '0.0 g'; }, 1500);
-      if (ok) addLog('로드셀', '영점 초기화', '사용자가 Tare 명령 전송 완료');
-    }
 
     // 수동 장치 제어
     function toggleLight() {
