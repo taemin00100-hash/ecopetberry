@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌱 Eco-Pet Care Standalone Template</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Chart.js for smooth power graph -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div>
+        <div class="title">🎨 Eco-Pet Care UI Design Template</div>
+        <div class="subtitle">친구 전달용 단독 HTML/CSS 정적 디자인 템플릿입니다. 원하는 대로 마음껏 수정하실 수 있습니다.</div>
+      </div>
+      <div class="badge">STANDALONE HTML/CSS</div>
+    </header>
+
+    <!-- Top Grid: Camera & Metrics -->
+    <div class="grid-2">
+      <!-- Live Camera Showcase -->
+      <div class="card">
+        <div class="card-title">
+          <span>📷 카메라 실시간 영상 뷰어</span>
+          <span style="background:#10b981; color:#000; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:800;">LIVE DEMO</span>
+        </div>
+        <div class="camera-box">
+          <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop" alt="Pet Camera Demo">
+          <div class="cam-tag">📍 거실 스마트 방석 구역</div>
+        </div>
+      </div>
+
+      <!-- System Summary -->
+      <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+          <div class="card-title">⚡ 대기전력 자동 차단 시스템 요약</div>
+          
+          <div class="metric-item">
+            <div class="metric-label">🐕 반려동물 스마트 방석 안착 감지</div>
+            <div class="metric-val" style="color:#10b981;">🟢 안착함 (수면 진입 모드)</div>
+            <div style="font-size:0.8rem; color:#9aa0a6; margin-top:4px;">로드셀 & PIR 모션 센서 가중치 알고리즘 구동 중</div>
+          </div>
+
+          <div class="metric-item">
+            <div class="metric-label">🍃 실시간 이산화탄소 절감량</div>
+            <div class="metric-val" style="color:#fbd604;">4.82 kg CO₂</div>
+            <div style="font-size:0.8rem; color:#10b981; margin-top:4px; font-weight:600;">🌱 소나무 약 0.73그루 심은 효과</div>
+          </div>
+
+          <div class="metric-item" style="border-bottom:none;">
+            <div class="metric-label">💰 이번 달 누적 절약 전기 요금</div>
+            <div class="metric-val" style="color:#10b981;">₩ 12,500</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Power Chart -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <div class="card-title">🔌 실시간 가전 기기 전력 사용량 추이 (최근 5분)</div>
+      <p style="color:#9aa0a6; font-size:0.85rem; margin-bottom:1rem;">방석 안착 상태에 따른 실시간 전력 그래프 예시입니다.</p>
+      <div style="height:250px; width:100%;">
+        <canvas id="powerChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Device Control Buttons (UI Template) -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <div class="card-title">🎛️ 가전 기기 제어 버튼 레이아웃 템플릿</div>
+      <div class="btn-grid" style="margin-top:1rem;">
+        <button class="btn btn-active" onclick="alert('친구분이 이 코드를 마음껏 수정하여 사용하실 수 있습니다!')">💡 거실 조명 (ON)</button>
+        <button class="btn" onclick="alert('디자인 전용 템플릿입니다.')">📺 TV (OFF)</button>
+        <button class="btn" onclick="alert('디자인 전용 템플릿입니다.')">⛺ 블라인드 (닫힘)</button>
+        <button class="btn" style="border-color:#06b6d4; color:#06b6d4;" onclick="alert('디자인 전용 템플릿입니다.')">❄️ 에어컨 24°C</button>
+      </div>
+    </div>
+
+    <!-- Database Logs Table -->
+    <div class="card">
+      <div class="card-title">🗄️ 시스템 상태 로그 테이블 양식</div>
+      <div style="overflow-x:auto; margin-top:1rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>일시</th>
+              <th>장치명</th>
+              <th>이벤트</th>
+              <th>상세 내용</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:#64748b;">2026-07-30 19:10:00</td>
+              <td style="font-weight:600;">시스템 메인</td>
+              <td><span style="background:rgba(59,130,246,0.15); color:#60a5fa; padding:2px 6px; border-radius:4px; font-size:0.75rem;">템플릿 뷰</span></td>
+              <td style="color:#9aa0a6;">독립 단독 HTML/CSS 디자인 템플릿이 로드되었습니다.</td>
+            </tr>
+            <tr>
+              <td style="color:#64748b;">2026-07-30 19:05:00</td>
+              <td style="font-weight:600;">스마트 방석</td>
+              <td><span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 6px; border-radius:4px; font-size:0.75rem;">안착 감지</span></td>
+              <td style="color:#9aa0a6;">반려동물 안착 상태 감지 (수면 진입 모드)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Smooth Power Chart with Chart.js
+    const ctx = document.getElementById('powerChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['10:00', '10:01', '10:02', '10:03', '10:04', '10:05'],
+        datasets: [{
+          label: '합산 전력 (mW)',
+          data: [120, 145, 138, 160, 155, 175],
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          fill: true,
+          tension: 0.4,
+          borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9aa0a6' } },
+          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9aa0a6' } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
