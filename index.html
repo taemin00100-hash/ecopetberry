@@ -264,13 +264,18 @@
       }
     });
 
-    // ===========================
-    // 실시간 상태 가져오기
-    // ===========================
+    // 🌐 발표 전용 Cloudflare HTTPS 보안 터널 (Vercel 100% 호환)
+    const TUNNEL_URL = 'https://quarters-contributing-yorkshire-halo.trycloudflare.com';
+
     async function fetchStatus() {
       try {
-        const res = await fetch(`${RPI_BASE}/api/status`, { signal: AbortSignal.timeout(3000) });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        let res = await fetch(`${TUNNEL_URL}/api/status`, { signal: AbortSignal.timeout(3500) }).catch(() => null);
+        if (!res || !res.ok) {
+          const fallback = window.location.origin.startsWith('http') && !window.location.origin.includes('vercel')
+            ? window.location.origin
+            : 'http://10.88.232.244:5000';
+          res = await fetch(`${fallback}/api/status`, { signal: AbortSignal.timeout(3500) });
+        }
         const json = await res.json();
         updateUI(json.data || {});
         setMqttOnline(true);
@@ -278,16 +283,9 @@
         setMqttOnline(false);
         const homeStatusEl  = document.getElementById('homeStatusVal');
         const homeStatusSub = document.getElementById('homeStatusSub');
-        if (location.protocol === 'https:') {
-          homeStatusEl.textContent = '⚠️ 브라우저 보안 차단 (HTTPS)';
-          homeStatusEl.className   = 'metric-val-yellow';
-          homeStatusSub.textContent = '🔒 주소창 자물쇠 > 사이트 설정 > "보안되지 않은 콘텐츠" [허용] 클릭 후 새로고침!';
-          homeStatusSub.className   = 'sub-desc-green';
-        } else {
-          homeStatusEl.textContent = '❌ 라즈베리파이 연결 대기 중';
-          homeStatusEl.className   = 'metric-val-yellow';
-          homeStatusSub.textContent = '동일한 Wi-Fi(junyeong) 접속 확인 필요';
-        }
+        homeStatusEl.textContent = '❌ 라즈베리파이 서버 대기 중';
+        homeStatusEl.className   = 'metric-val-yellow';
+        homeStatusSub.textContent = '센서 데이터 수신 확인 중...';
       }
     }
 
@@ -439,13 +437,25 @@
     // ===========================
     async function sendCommand(payload) {
       try {
-        const res = await fetch(`${RPI_BASE}/api/control`, {
+        let res = await fetch(`${TUNNEL_URL}/api/control`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
-          signal: AbortSignal.timeout(3000)
-        });
-        return res.ok;
+          signal: AbortSignal.timeout(3500)
+        }).catch(() => null);
+
+        if (!res || !res.ok) {
+          const fallback = window.location.origin.startsWith('http') && !window.location.origin.includes('vercel')
+            ? window.location.origin
+            : 'http://10.88.232.244:5000';
+          res = await fetch(`${fallback}/api/control`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(3500)
+          });
+        }
+        return res && res.ok;
       } catch(e) { return false; }
     }
 
