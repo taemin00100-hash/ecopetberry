@@ -57,12 +57,12 @@ struct WifiCred {
 };
 
 WifiCred wifiList[] = {
-  {"seojun", "35320300"},
-  {"junyeong", "10101010"}
+  {"junyeong", "10101010"},
+  {"seojun", "35320300"}
 };
 const int wifiCount = sizeof(wifiList) / sizeof(WifiCred);
 
-const char* mqtt_server = "172.20.10.2";
+const char* mqtt_server = "10.48.38.244";
 const int   mqtt_port   = 1883;
 const char* topic_sensor  = "xiao/sensor";
 const char* topic_control = "xiao/control";
@@ -277,11 +277,13 @@ void setup() {
   for (int i = 0; i < wifiCount && !connected; i++) {
     Serial.print("[WiFi] Trying SSID: ");
     Serial.println(wifiList[i].ssid);
+    WiFi.disconnect();
+    delay(100);
     WiFi.begin(wifiList[i].ssid, wifiList[i].pass);
     
     int attempts = 0;
-    while (WiFi.status() != WL_CONNECTED && attempts < 15) {
-      delay(300);
+    while (WiFi.status() != WL_CONNECTED && attempts < 30) {
+      delay(500);
       Serial.print(".");
       attempts++;
     }
